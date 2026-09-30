@@ -48,18 +48,26 @@ Implemented in this branch:
 - [x] Default local port moved to 4174 to avoid conflict with NLabel on 4173.
 - [ ] Merge into `main` and tag `v0.1.0`.
 
-## Next version
+## Version path to external review
 
-**v0.2 — Installation domestique**
+Canonical roadmap: `ROADMAP.md`.
 
-Do not start before v0.1 is accepted.
+The previously agreed sequence is now recorded explicitly:
+
+- v0.1 — Circuit Lampe
+- v0.2 — Installation domestique
+- v0.3 — Mini laboratoire pédagogique
+- v0.4 — Bibliothèque électrique
+- v0.5 — Assistant IA Lite
+
+The remote electrician review is deferred until v0.5. Each version is still internally certified before starting the next one.
 
 
 ## Remote tester deployment
 
 - [x] Vercel-ready static build added (`npm run build` → `dist/`).
 - [x] GitHub Actions now validates the static build.
-- [ ] Public Vercel deployment URL created and tested.
+- [x] Git-driven Vercel preview deployment created successfully.
 
 
 
@@ -70,4 +78,16 @@ Do not start before v0.1 is accepted.
 - [x] Static build configuration available (`npm run build` → `dist/`).
 - [x] Vercel preview deployment reached Ready on the feature branch (deployment `Bdk7qfhcGScwqKSeUkKAgGn8Ys1D`).
 - [ ] Public access from an external browser/user verified.
-- [ ] Remote electrician usability validation completed.
+- [ ] Remote electrician usability validation completed — intentionally deferred until v0.5.
+
+
+## Recent project-specific discoveries
+
+- NLabel already owns local port 4173 on the phone; ElectroLab uses 4174 locally.
+- Vercel project: `electro-lab-ai`.
+- GitHub repository: `nexagrouptech/ElectroLabAI`.
+- Git integration is active: pushes to the feature branch trigger Vercel Preview deployments automatically.
+- The first Vercel build failed because dependency-based detection selected Express even though the intended deployable artifact is static.
+- Project fix: `vercel.json` now sets `"framework": null`, keeps `npm run build`, and serves `dist/`.
+- After that fix, Vercel reached Ready successfully.
+- Current long branch Preview URL is for development review only; the short production domain will be finalized before the v0.5 external electrician review.
