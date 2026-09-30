@@ -43,7 +43,7 @@ Implemented in this branch:
 - [x] A correct circuit can pass validation.
 - [x] Project can be saved and reloaded locally.
 - [x] Automated tests exist.
-- [ ] GitHub Actions green.
+- [ ] GitHub Actions green (workflow now installed on main and feature branch).
 - [ ] Manual usability check on the user's device.
 - [ ] Merge into `main` and tag `v0.1.0`.
 
