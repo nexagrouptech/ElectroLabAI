@@ -19,6 +19,9 @@ export const COMPONENT_CATALOG = Object.freeze({
       { id: "N", label: "N", role: "neutral" },
       { id: "PE", label: "PE", role: "protective-earth" }
     ],
+    propertySchema: {
+      voltageV: { label: "Tension", input: "number", unit: "V", min: 1, step: 1 }
+    },
     defaultProperties: { voltageV: 230 }
   }),
   breaker: Object.freeze({
@@ -32,6 +35,9 @@ export const COMPONENT_CATALOG = Object.freeze({
       { id: "L_IN", label: "L in", role: "line-in" },
       { id: "L_OUT", label: "L out", role: "line-out" }
     ],
+    propertySchema: {
+      ratingA: { label: "Calibre", input: "select", unit: "A", options: [10, 16, 20, 32, 40] }
+    },
     defaultProperties: { ratingA: 16 }
   }),
   switch: Object.freeze({
@@ -45,6 +51,7 @@ export const COMPONENT_CATALOG = Object.freeze({
       { id: "L_IN", label: "L in", role: "line-in" },
       { id: "L_OUT", label: "L out", role: "line-out" }
     ],
+    propertySchema: {},
     defaultProperties: {}
   }),
   lamp: Object.freeze({
@@ -58,6 +65,9 @@ export const COMPONENT_CATALOG = Object.freeze({
       { id: "L", label: "L", role: "line" },
       { id: "N", label: "N", role: "neutral" }
     ],
+    propertySchema: {
+      powerW: { label: "Puissance", input: "number", unit: "W", min: 1, step: 1 }
+    },
     defaultProperties: { powerW: 60 }
   }),
   socket: Object.freeze({
@@ -72,6 +82,7 @@ export const COMPONENT_CATALOG = Object.freeze({
       { id: "N", label: "N", role: "neutral" },
       { id: "PE", label: "PE", role: "protective-earth" }
     ],
+    propertySchema: {},
     defaultProperties: {}
   }),
   fuse: Object.freeze({
@@ -85,6 +96,9 @@ export const COMPONENT_CATALOG = Object.freeze({
       { id: "L_IN", label: "L in", role: "line-in" },
       { id: "L_OUT", label: "L out", role: "line-out" }
     ],
+    propertySchema: {
+      ratingA: { label: "Calibre", input: "select", unit: "A", options: [10, 16, 20, 32] }
+    },
     defaultProperties: { ratingA: 16 }
   }),
   rcd: Object.freeze({
@@ -100,7 +114,87 @@ export const COMPONENT_CATALOG = Object.freeze({
       { id: "L_OUT", label: "L out", role: "line-out" },
       { id: "N_OUT", label: "N out", role: "neutral-out" }
     ],
+    propertySchema: {
+      ratingA: { label: "Calibre", input: "select", unit: "A", options: [25, 40, 63] },
+      sensitivityMA: { label: "Sensibilité", input: "select", unit: "mA", options: [10, 30, 100, 300] }
+    },
     defaultProperties: { ratingA: 40, sensitivityMA: 30 }
+  }),
+  relay: Object.freeze({
+    catalogId: "tertiary.control.relay",
+    type: "relay",
+    label: "Relais",
+    symbol: "R",
+    category: "control",
+    tags: ["relais", "commande", "bobine", "tertiaire"],
+    terminals: [
+      { id: "A1", label: "A1", role: "coil-in" },
+      { id: "A2", label: "A2", role: "coil-out" },
+      { id: "COM", label: "COM", role: "common" },
+      { id: "NO", label: "NO", role: "normally-open" },
+      { id: "NC", label: "NC", role: "normally-closed" }
+    ],
+    propertySchema: {
+      coilVoltageV: { label: "Tension bobine", input: "number", unit: "V", min: 1, step: 1 }
+    },
+    defaultProperties: { coilVoltageV: 230 }
+  }),
+  contactor: Object.freeze({
+    catalogId: "tertiary.control.contactor",
+    type: "contactor",
+    label: "Contacteur",
+    symbol: "KM",
+    category: "control",
+    tags: ["contacteur", "commande", "moteur", "tertiaire"],
+    terminals: [
+      { id: "A1", label: "A1", role: "coil-in" },
+      { id: "A2", label: "A2", role: "coil-out" },
+      { id: "L1", label: "L1", role: "line-in" },
+      { id: "T1", label: "T1", role: "line-out" }
+    ],
+    propertySchema: {
+      coilVoltageV: { label: "Tension bobine", input: "number", unit: "V", min: 1, step: 1 },
+      ratingA: { label: "Calibre", input: "number", unit: "A", min: 1, step: 1 }
+    },
+    defaultProperties: { coilVoltageV: 230, ratingA: 25 }
+  }),
+  transformer: Object.freeze({
+    catalogId: "tertiary.supply.transformer",
+    type: "transformer",
+    label: "Transformateur",
+    symbol: "T",
+    category: "supply",
+    tags: ["transformateur", "tension", "primaire", "secondaire", "tertiaire"],
+    terminals: [
+      { id: "P1", label: "P1", role: "primary-in" },
+      { id: "P2", label: "P2", role: "primary-out" },
+      { id: "S1", label: "S1", role: "secondary-in" },
+      { id: "S2", label: "S2", role: "secondary-out" }
+    ],
+    propertySchema: {
+      primaryVoltageV: { label: "Tension primaire", input: "number", unit: "V", min: 1, step: 1 },
+      secondaryVoltageV: { label: "Tension secondaire", input: "number", unit: "V", min: 1, step: 1 },
+      ratedPowerVA: { label: "Puissance nominale", input: "number", unit: "VA", min: 1, step: 1 }
+    },
+    defaultProperties: { primaryVoltageV: 230, secondaryVoltageV: 24, ratedPowerVA: 250 }
+  }),
+  motor: Object.freeze({
+    catalogId: "tertiary.load.motor.single-phase",
+    type: "motor",
+    label: "Moteur monophasé",
+    symbol: "M",
+    category: "load",
+    tags: ["moteur", "monophasé", "récepteur", "tertiaire"],
+    terminals: [
+      { id: "L", label: "L", role: "line" },
+      { id: "N", label: "N", role: "neutral" },
+      { id: "PE", label: "PE", role: "protective-earth" }
+    ],
+    propertySchema: {
+      voltageV: { label: "Tension", input: "number", unit: "V", min: 1, step: 1 },
+      powerW: { label: "Puissance", input: "number", unit: "W", min: 1, step: 1 }
+    },
+    defaultProperties: { voltageV: 230, powerW: 750 }
   })
 });
 
