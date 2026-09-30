@@ -62,8 +62,11 @@ Do not start before v0.1 is accepted.
 - [ ] Public Vercel deployment URL created and tested.
 
 
-## GitHub Pages remote tester fallback
 
-- [x] Static asset paths made portable for subpath hosting.
-- [x] GitHub Pages deployment workflow added for the v0.1 feature branch.
-- [ ] Public tester URL verified.
+## Vercel remote tester
+
+- [x] Vercel project `electro-lab-ai` created.
+- [x] GitHub repository `nexagrouptech/ElectroLabAI` connected to Vercel.
+- [x] Static build configuration available (`npm run build` → `dist/`).
+- [ ] Preview deployment URL verified from the feature branch.
+- [ ] Remote electrician usability validation completed.
