@@ -2,7 +2,7 @@
 
 ## Current target
 
-**v0.2 — Installation domestique**
+**v0.3 — Mini laboratoire pédagogique**
 
 Current work is split into small certifiable parts.
 
@@ -57,7 +57,7 @@ Status: **Part 2 complete and automated validation green**.
 
 ## Current branch
 
-`feature/v0.2-installation-domestique`
+`main`
 
 ## Deployment
 
@@ -80,4 +80,13 @@ See `ROADMAP.md`.
 - [x] Automated tests pass on Node 20 and Node 22.
 - [x] Vercel Preview deployment succeeds.
 - [x] Owner approved the v0.2 Preview for progression.
-- [ ] Merge PR #2 to `main` after acceptance.
+- [x] PR #2 merged to `main` as the certified v0.2 foundation.
+
+
+## v0.2 merge result
+
+PR #2 was merged into `main`.
+
+Main merge commit: `2325c1a64253352c05bc642530293277d2c9d3f2`.
+
+Next implementation target: **v0.3 — Mini laboratoire pédagogique**.

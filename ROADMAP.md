@@ -27,7 +27,7 @@ Status: internally certified and merged to `main`; tag `v0.1.0` is still pending
 
 ## v0.2 — Installation domestique
 
-Status: **implementation complete — awaiting owner usability certification before merge**.
+Status: **internally certified and merged to `main`**.
 
 Goal: move from one lamp circuit to a small realistic domestic installation.
 
@@ -45,6 +45,8 @@ Scope:
 Done when a user can assemble and validate a small domestic installation without AI.
 
 ## v0.3 — Mini laboratoire pédagogique
+
+Status: **starting — Part 1 (exercise model + learner entry flow)**.
 
 Goal: turn the editor into a first teachable laboratory.
 
