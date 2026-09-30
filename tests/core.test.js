@@ -9,6 +9,12 @@ import {
   updateComponent
 } from "../core/project.js";
 import { validateProject } from "../core/validator.js";
+import {
+  COMPONENT_CATALOG,
+  getComponentDefinition,
+  listComponentDefinitions,
+  searchComponentDefinitions
+} from "../core/catalog.js";
 import { createExerciseProject, evaluateExercise, getExercise, isComponentAllowed, listExercises, recordExerciseAttempt } from "../core/exercises.js";
 
 function validSocketProject(protectionType = "fuse") {
@@ -53,7 +59,7 @@ test("creates the v0.2 supported components", () => {
     "fuse",
     "rcd"
   ]);
-  assert.equal(project.version, "0.3.0");
+  assert.equal(project.version, "0.4.0");
 });
 
 test("defines domestic terminals and default protection properties", () => {
@@ -124,7 +130,7 @@ test("round-trips saved projects without losing data", () => {
   assert.equal(restored.components.length, 4);
   assert.equal(restored.wires.length, 4);
   assert.equal(restored.components.find((item) => item.id === "breaker").properties.ratingA, 16);
-  assert.equal(restored.version, "0.3.0");
+  assert.equal(restored.version, "0.4.0");
 });
 
 
@@ -190,7 +196,7 @@ test("exposes reusable predefined exercises", () => {
 
 test("creates an exercise-bound project", () => {
   const project = createExerciseProject("lamp-basic");
-  assert.equal(project.version, "0.3.0");
+  assert.equal(project.version, "0.4.0");
   assert.equal(project.exerciseId, "lamp-basic");
 });
 
@@ -245,4 +251,41 @@ test("records exercise attempts and persists the latest result", () => {
   const restored = deserializeProject(serializeProject(project));
   assert.equal(restored.exerciseProgress.attempts, 1);
   assert.equal(restored.exerciseProgress.history.length, 1);
+});
+
+
+test("catalog exposes stable component identifiers", () => {
+  const source = getComponentDefinition("source");
+  assert.equal(source.catalogId, "residential.source.230v");
+  assert.equal(COMPONENT_CATALOG.breaker.category, "protection");
+  assert.equal(listComponentDefinitions().length, 7);
+});
+
+test("catalog search finds components by label and tags", () => {
+  assert.deepEqual(
+    searchComponentDefinitions({ query: "prise" }).map((item) => item.type),
+    ["socket"]
+  );
+  assert.ok(
+    searchComponentDefinitions({ query: "protection" }).some((item) => item.type === "breaker")
+  );
+});
+
+test("catalog filters by category", () => {
+  const protections = searchComponentDefinitions({ category: "protection" });
+  assert.deepEqual(
+    protections.map((item) => item.type).sort(),
+    ["breaker", "fuse", "rcd"]
+  );
+});
+
+test("new components carry catalog ids and old saves are normalized", () => {
+  const project = createProject();
+  const source = addComponent(project, "source", { id: "catalog-source" });
+  assert.equal(source.catalogId, "residential.source.230v");
+
+  const saved = JSON.parse(serializeProject(project));
+  delete saved.components[0].catalogId;
+  const restored = deserializeProject(saved);
+  assert.equal(restored.components[0].catalogId, "residential.source.230v");
 });
