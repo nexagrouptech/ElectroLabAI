@@ -52,6 +52,14 @@ test("rejects an incomplete phase path", () => {
   assert.ok(result.errors.some((error) => error.code === "OPEN_PHASE_PATH"));
 });
 
+test("rejects a phase wire placed on the wrong terminal", () => {
+  const project = validLampProject();
+  project.wires.find((wire) => wire.id === "w1").from.terminalId = "N";
+  const result = validateProject(project);
+  assert.equal(result.valid, false);
+  assert.ok(result.errors.some((error) => error.code === "OPEN_PHASE_PATH"));
+});
+
 test("supports manual breaker ratings", () => {
   const project = validLampProject();
   updateComponent(project, "breaker", { properties: { ratingA: 32 } });
