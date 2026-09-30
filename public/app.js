@@ -10,7 +10,7 @@ import {
 } from "./core/project.js";
 import { validateProject } from "./core/validator.js";
 import { createExerciseProject, evaluateExercise, getExercise, isComponentAllowed, listExercises, recordExerciseAttempt } from "./core/exercises.js";
-import { COMPONENT_CATEGORIES, searchComponentDefinitions } from "./core/catalog.js";
+import { COMPONENT_CATEGORIES, getComponentDefinition, searchComponentDefinitions } from "./core/catalog.js";
 
 const STORAGE_KEY = "electrolab.v0.4.project";
 const LEGACY_STORAGE_KEYS = ["electrolab.v0.3.project", "electrolab.v0.2.project", "electrolab.v0.1.project"];
@@ -332,25 +332,29 @@ function renderInspector() {
   componentName.value = component.name;
   propertyFields.replaceChildren();
 
+  const definition = getComponentDefinition(component.type);
   for (const [key, value] of Object.entries(component.properties)) {
+    const meta = definition?.propertySchema?.[key] || {};
     const label = document.createElement("label");
-    label.textContent = propertyLabel(key);
+    label.textContent = meta.unit ? `${meta.label || key} (${meta.unit})` : meta.label || key;
 
     let input;
-    if (key === "ratingA") {
+    if (meta.input === "select" && Array.isArray(meta.options)) {
       input = document.createElement("select");
-      for (const rating of [10, 16, 20, 32, 40]) {
+      for (const optionValue of meta.options) {
         const option = document.createElement("option");
-        option.value = String(rating);
-        option.textContent = `${rating} A`;
-        option.selected = Number(value) === rating;
+        option.value = String(optionValue);
+        option.textContent = meta.unit ? `${optionValue} ${meta.unit}` : String(optionValue);
+        option.selected = String(value) === String(optionValue);
         input.appendChild(option);
       }
     } else {
       input = document.createElement("input");
-      input.type = typeof value === "number" ? "number" : "text";
+      input.type = meta.input === "number" || typeof value === "number" ? "number" : "text";
       input.value = String(value);
-      if (input.type === "number") input.min = "1";
+      if (meta.min !== undefined) input.min = String(meta.min);
+      if (meta.max !== undefined) input.max = String(meta.max);
+      if (meta.step !== undefined) input.step = String(meta.step);
     }
 
     input.dataset.property = key;
@@ -462,15 +466,6 @@ function addValidationLine(text) {
   const li = document.createElement("li");
   li.textContent = text;
   validationList.appendChild(li);
-}
-
-function propertyLabel(key) {
-  return {
-    ratingA: "Calibre",
-    voltageV: "Tension (V)",
-    powerW: "Puissance (W)",
-    sensitivityMA: "Sensibilité différentielle (mA)"
-  }[key] || key;
 }
 
 function escapeHtml(value) {
