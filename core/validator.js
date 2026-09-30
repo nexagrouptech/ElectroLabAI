@@ -16,24 +16,6 @@ function hasTerminalConnection(project, a, b) {
   });
 }
 
-function componentAdjacency(project) {
-  const map = new Map(project.components.map((item) => [item.id, new Set()]));
-  for (const wire of project.wires) {
-    if (map.has(wire.from.componentId) && map.has(wire.to.componentId)) {
-      map.get(wire.from.componentId).add(wire.to.componentId);
-      map.get(wire.to.componentId).add(wire.from.componentId);
-    }
-  }
-  return map;
-}
-
-function hasComponentPath(adjacency, orderedIds) {
-  for (let index = 0; index < orderedIds.length - 1; index += 1) {
-    if (!adjacency.get(orderedIds[index])?.has(orderedIds[index + 1])) return false;
-  }
-  return true;
-}
-
 export function validateProject(project) {
   const errors = [];
   const warnings = [];
@@ -106,22 +88,31 @@ export function validateProject(project) {
   }
 
   if (source && breaker && switchComponent && lamp) {
-    const adjacency = componentAdjacency(project);
-    const phasePath = hasComponentPath(adjacency, [
-      source.id,
-      breaker.id,
-      switchComponent.id,
-      lamp.id
-    ]);
+    const phaseSegments = [
+      [
+        { componentId: source.id, terminalId: "L" },
+        { componentId: breaker.id, terminalId: "L_IN" }
+      ],
+      [
+        { componentId: breaker.id, terminalId: "L_OUT" },
+        { componentId: switchComponent.id, terminalId: "L_IN" }
+      ],
+      [
+        { componentId: switchComponent.id, terminalId: "L_OUT" },
+        { componentId: lamp.id, terminalId: "L" }
+      ]
+    ];
+
+    const phasePath = phaseSegments.every(([from, to]) => hasTerminalConnection(project, from, to));
     checks.push({
       id: "phase-path",
       ok: phasePath,
-      label: "Phase: source → disjoncteur → interrupteur → lampe"
+      label: "Phase: L source → disjoncteur → interrupteur → L lampe"
     });
     if (!phasePath) {
       errors.push({
         code: "OPEN_PHASE_PATH",
-        message: "Le chemin de phase doit relier source → disjoncteur → interrupteur → lampe."
+        message: "Câble exactement L source → L in disjoncteur → L out → L in interrupteur → L out → L lampe."
       });
     }
 
