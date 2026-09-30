@@ -258,7 +258,7 @@ test("catalog exposes stable component identifiers", () => {
   const source = getComponentDefinition("source");
   assert.equal(source.catalogId, "residential.source.230v");
   assert.equal(COMPONENT_CATALOG.breaker.category, "protection");
-  assert.equal(listComponentDefinitions().length, 7);
+  assert.equal(listComponentDefinitions().length, 11);
 });
 
 test("catalog search finds components by label and tags", () => {
@@ -288,4 +288,45 @@ test("new components carry catalog ids and old saves are normalized", () => {
   delete saved.components[0].catalogId;
   const restored = deserializeProject(saved);
   assert.equal(restored.components[0].catalogId, "residential.source.230v");
+});
+
+
+test("catalog registers first tertiary components", () => {
+  for (const type of ["relay", "contactor", "transformer", "motor"]) {
+    const definition = getComponentDefinition(type);
+    assert.ok(definition, type);
+    assert.ok(definition.catalogId.startsWith("tertiary."));
+    assert.ok(definition.terminals.length >= 2);
+  }
+});
+
+test("catalog exposes property metadata for configurable components", () => {
+  assert.deepEqual(
+    getComponentDefinition("breaker").propertySchema.ratingA.options,
+    [10, 16, 20, 32, 40]
+  );
+  assert.equal(getComponentDefinition("motor").propertySchema.powerW.unit, "W");
+  assert.equal(getComponentDefinition("transformer").propertySchema.secondaryVoltageV.input, "number");
+});
+
+test("new tertiary components inherit stable ids, terminals and defaults", () => {
+  const project = createProject();
+  const motor = addComponent(project, "motor", { id: "motor-1" });
+  const transformer = addComponent(project, "transformer", { id: "transformer-1" });
+
+  assert.equal(motor.catalogId, "tertiary.load.motor.single-phase");
+  assert.deepEqual(motor.terminals.map((item) => item.id), ["L", "N", "PE"]);
+  assert.equal(motor.properties.powerW, 750);
+
+  assert.equal(transformer.catalogId, "tertiary.supply.transformer");
+  assert.deepEqual(transformer.terminals.map((item) => item.id), ["P1", "P2", "S1", "S2"]);
+  assert.equal(transformer.properties.secondaryVoltageV, 24);
+});
+
+test("validator blocks false certification for newly cataloged components", () => {
+  const project = validLampProject();
+  addComponent(project, "motor", { id: "motor-extra" });
+  const result = validateProject(project);
+  assert.equal(result.valid, false);
+  assert.ok(result.errors.some((error) => error.code === "VALIDATION_PENDING_FOR_COMPONENT"));
 });
