@@ -39,7 +39,12 @@ Implemented:
 - v0.1 lamp validation remains supported;
 - focused tests cover valid breaker/fuse socket paths and invalid PE/neutral/rating/sensitivity cases.
 
-Status: implementation pushed; awaiting CI/Vercel confirmation.
+Status: **Part 2 complete and automated validation green**.
+
+- GitHub Actions Node 20: PASS
+- GitHub Actions Node 22: PASS
+- Vercel Preview deployment: READY
+- Next gate: owner usability check before certifying/merging v0.2.
 
 ## v0.1 certified foundation
 
@@ -66,3 +71,13 @@ Status: implementation pushed; awaiting CI/Vercel confirmation.
 The structured remote-electrician review remains scheduled for **v0.5**, after v0.2 domestic rules, v0.3 exercises, v0.4 component library work, and v0.5 AI Lite are internally usable.
 
 See `ROADMAP.md`.
+
+
+## v0.2 current certification state
+
+- [x] Part 1 — domestic component primitives.
+- [x] Part 2 — deterministic domestic validation rules.
+- [x] Automated tests pass on Node 20 and Node 22.
+- [x] Vercel Preview deployment succeeds.
+- [ ] Owner usability check on the v0.2 Preview.
+- [ ] Merge PR #2 to `main` after acceptance.
