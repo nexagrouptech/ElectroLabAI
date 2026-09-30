@@ -79,6 +79,11 @@ export function createProject({ id = makeId("project"), name = "Mini laboratoire
     name,
     version: "0.3.0",
     exerciseId,
+    exerciseProgress: {
+      attempts: 0,
+      lastResult: null,
+      history: []
+    },
     components: [],
     wires: [],
     updatedAt: new Date().toISOString()
@@ -190,6 +195,11 @@ export function deserializeProject(json) {
     ...parsed,
     version: parsed.version || "0.3.0",
     exerciseId: parsed.exerciseId || null,
+    exerciseProgress: {
+      attempts: Number(parsed.exerciseProgress?.attempts || 0),
+      lastResult: parsed.exerciseProgress?.lastResult || null,
+      history: Array.isArray(parsed.exerciseProgress?.history) ? parsed.exerciseProgress.history : []
+    },
     updatedAt: parsed.updatedAt || new Date().toISOString()
   };
 }
