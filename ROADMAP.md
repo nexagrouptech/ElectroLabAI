@@ -64,7 +64,7 @@ Done when a learner can open an exercise, build a circuit, verify it, and receiv
 
 ## v0.4 — Bibliothèque électrique
 
-Status: **implementation complete — searchable structured catalog, initial tertiary expansion and metadata-driven properties; awaiting owner usability certification**.
+Status: **internally certified and merged to `main`**.
 
 Goal: make component discovery and configuration usable beyond the tiny starter palette.
 
@@ -81,6 +81,8 @@ Scope:
 Done when the editor can grow by registering components without rewriting the whole interface.
 
 ## v0.5 — Validation électrique & simulation sans IA
+
+Status: **starting — Part 1 (deterministic calculation summary for fully supported circuits)**.
 
 Goal: strengthen the deterministic non-AI product before 3D and classroom work.
 
