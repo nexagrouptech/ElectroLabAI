@@ -73,11 +73,12 @@ function makeId(prefix) {
   return uuid ? `${prefix}-${uuid}` : `${prefix}-${Date.now()}-${Math.random().toString(16).slice(2)}`;
 }
 
-export function createProject({ id = makeId("project"), name = "Installation domestique" } = {}) {
+export function createProject({ id = makeId("project"), name = "Mini laboratoire", exerciseId = null } = {}) {
   return {
     id,
     name,
-    version: "0.2.0",
+    version: "0.3.0",
+    exerciseId,
     components: [],
     wires: [],
     updatedAt: new Date().toISOString()
@@ -187,7 +188,8 @@ export function deserializeProject(json) {
   }
   return {
     ...parsed,
-    version: parsed.version || "0.2.0",
+    version: parsed.version || "0.3.0",
+    exerciseId: parsed.exerciseId || null,
     updatedAt: parsed.updatedAt || new Date().toISOString()
   };
 }
