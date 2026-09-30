@@ -43,7 +43,7 @@ Implemented in this branch:
 - [x] A correct circuit can pass validation.
 - [x] Project can be saved and reloaded locally.
 - [x] Automated tests exist.
-- [ ] GitHub Actions green (workflow now installed on main and feature branch).
+- [x] GitHub Actions green on pull request #1 (Node.js 20 and 22).
 - [ ] Manual usability check on the user's device.
 - [ ] Merge into `main` and tag `v0.1.0`.
 
