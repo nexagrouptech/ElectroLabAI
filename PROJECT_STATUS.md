@@ -24,14 +24,22 @@ Implemented in this part:
 
 ### Part 2 — Domestic validation rules
 
-Next after Part 1 is accepted:
+Implemented:
 
-- deterministic rules for Prise / Fusible / Différentiel;
-- protection-path checks;
-- PE continuity checks where applicable;
-- clearer blocking errors vs warnings;
-- a ready-made domestic example;
-- tests for valid and invalid domestic installations.
+- deterministic socket validation supports either a **Disjoncteur** or **Fusible** as the overcurrent protection;
+- phase path checked as Source L → Différentiel → protection → Prise L;
+- neutral path checked as Source N → Différentiel → Prise N;
+- PE continuity checked as Source PE → Prise PE;
+- Fuse ratings 10 / 16 / 20 / 32 A are enforced;
+- RCD rating and sensitivity must be positive values;
+- blocking electrical/topology problems go to `errors`;
+- non-blocking conditions such as unused terminals or multiple overcurrent devices go to `warnings`;
+- the **Exemple** button now loads a complete domestic socket example;
+- the example lays out vertically on narrow/mobile screens and horizontally on wider screens;
+- v0.1 lamp validation remains supported;
+- focused tests cover valid breaker/fuse socket paths and invalid PE/neutral/rating/sensitivity cases.
+
+Status: implementation pushed; awaiting CI/Vercel confirmation.
 
 ## v0.1 certified foundation
 

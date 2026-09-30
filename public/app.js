@@ -50,18 +50,36 @@ document.querySelector("#new-project").addEventListener("click", () => {
 });
 
 document.querySelector("#demo-project").addEventListener("click", () => {
-  project = createProject({ name: "Exemple — Circuit lampe" });
-  const source = addComponent(project, "source", { id: "source-demo", x: 40, y: 140 });
-  const breaker = addComponent(project, "breaker", { id: "breaker-demo", x: 230, y: 140 });
-  const sw = addComponent(project, "switch", { id: "switch-demo", x: 420, y: 140 });
-  const lamp = addComponent(project, "lamp", { id: "lamp-demo", x: 610, y: 140 });
+  project = createProject({ name: "Exemple — Prise domestique protégée" });
 
-  connect(project, { componentId: source.id, terminalId: "L" }, { componentId: breaker.id, terminalId: "L_IN" });
-  connect(project, { componentId: breaker.id, terminalId: "L_OUT" }, { componentId: sw.id, terminalId: "L_IN" });
-  connect(project, { componentId: sw.id, terminalId: "L_OUT" }, { componentId: lamp.id, terminalId: "L" });
-  connect(project, { componentId: source.id, terminalId: "N" }, { componentId: lamp.id, terminalId: "N" });
+  const compact = workspace.clientWidth < 650;
+  const positions = compact
+    ? [
+        { x: 24, y: 24 },
+        { x: 24, y: 145 },
+        { x: 24, y: 266 },
+        { x: 24, y: 387 }
+      ]
+    : [
+        { x: 35, y: 140 },
+        { x: 225, y: 140 },
+        { x: 415, y: 140 },
+        { x: 605, y: 140 }
+      ];
 
-  selectedComponentId = breaker.id;
+  const source = addComponent(project, "source", { id: "source-demo", ...positions[0] });
+  const rcd = addComponent(project, "rcd", { id: "rcd-demo", ...positions[1] });
+  const fuse = addComponent(project, "fuse", { id: "fuse-demo", ...positions[2] });
+  const socket = addComponent(project, "socket", { id: "socket-demo", ...positions[3] });
+
+  connect(project, { componentId: source.id, terminalId: "L" }, { componentId: rcd.id, terminalId: "L_IN" });
+  connect(project, { componentId: source.id, terminalId: "N" }, { componentId: rcd.id, terminalId: "N_IN" });
+  connect(project, { componentId: rcd.id, terminalId: "L_OUT" }, { componentId: fuse.id, terminalId: "L_IN" });
+  connect(project, { componentId: fuse.id, terminalId: "L_OUT" }, { componentId: socket.id, terminalId: "L" });
+  connect(project, { componentId: rcd.id, terminalId: "N_OUT" }, { componentId: socket.id, terminalId: "N" });
+  connect(project, { componentId: source.id, terminalId: "PE" }, { componentId: socket.id, terminalId: "PE" });
+
+  selectedComponentId = rcd.id;
   pendingTerminal = null;
   render();
   runValidation();
