@@ -46,7 +46,7 @@ Done when a user can assemble and validate a small domestic installation without
 
 ## v0.3 — Mini laboratoire pédagogique
 
-Status: **Part 2 implemented — deterministic verification, attempts and scoring; awaiting owner usability certification**.
+Status: **internally certified and merged to `main`**.
 
 Goal: turn the editor into a first teachable laboratory.
 
@@ -63,6 +63,8 @@ Scope:
 Done when a learner can open an exercise, build a circuit, verify it, and receive reproducible feedback.
 
 ## v0.4 — Bibliothèque électrique
+
+Status: **starting — Part 1 (structured catalog + dynamic searchable palette)**.
 
 Goal: make component discovery and configuration usable beyond the tiny starter palette.
 
