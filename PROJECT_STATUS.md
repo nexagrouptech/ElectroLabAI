@@ -44,7 +44,7 @@ Implemented in this branch:
 - [x] Project can be saved and reloaded locally.
 - [x] Automated tests exist.
 - [x] GitHub Actions green on pull request #1 (Node.js 20 and 22).
-- [ ] Manual usability check on the user's device.
+- [x] Owner opened the Android UI successfully and explicitly approved progression to the next version.
 - [x] Default local port moved to 4174 to avoid conflict with NLabel on 4173.
 - [ ] Merge into `main` and tag `v0.1.0`.
 
@@ -91,3 +91,10 @@ The remote electrician review is deferred until v0.5. Each version is still inte
 - Project fix: `vercel.json` now sets `"framework": null`, keeps `npm run build`, and serves `dist/`.
 - After that fix, Vercel reached Ready successfully.
 - Current long branch Preview URL is for development review only; the short production domain will be finalized before the v0.5 external electrician review.
+
+
+## v0.1 certification note
+
+The owner approved progression from v0.1 after the Android UI opened successfully, automated core tests passed, GitHub Actions passed, and Vercel Preview reached Ready.
+
+This certification means v0.1 is accepted as the internal foundation. It does **not** replace the planned structured remote-electrician review at v0.5.
