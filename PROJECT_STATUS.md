@@ -79,5 +79,5 @@ See `ROADMAP.md`.
 - [x] Part 2 — deterministic domestic validation rules.
 - [x] Automated tests pass on Node 20 and Node 22.
 - [x] Vercel Preview deployment succeeds.
-- [ ] Owner usability check on the v0.2 Preview.
+- [x] Owner approved the v0.2 Preview for progression.
 - [ ] Merge PR #2 to `main` after acceptance.
