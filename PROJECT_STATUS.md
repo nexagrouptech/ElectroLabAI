@@ -23,13 +23,16 @@ Implemented:
 
 ### Part 2 — Catalog expansion + configurable characteristics
 
-Next after owner GO:
+Implemented:
 
-- add the first additional residential/tertiary components from the specification;
-- move property editing toward catalog-defined property metadata;
-- keep stable terminal definitions;
-- add tests for every new registered component;
-- preserve the deterministic non-AI architecture.
+- added first tertiary components: **Relais**, **Contacteur**, **Transformateur** and **Moteur monophasé**;
+- each new component has a stable catalog id and stable terminal definitions;
+- all catalog components now expose property metadata through `propertySchema`;
+- inspector fields are generated from catalog metadata instead of hard-coded property names;
+- select/number inputs, units, minimums and options come from the catalog;
+- search/tags/categories automatically include the new components;
+- validator explicitly blocks certification of newly cataloged components whose electrical rules are not yet implemented, preventing false “Circuit valide” results;
+- automated tests cover new components, terminal stability, defaults, property metadata and validation-pending behavior.
 
 ## Certified foundations
 
@@ -47,7 +50,7 @@ Next after owner GO:
 - [x] GitHub Actions Node 20 passed.
 - [x] GitHub Actions Node 22 passed.
 - [x] Vercel Preview deployment succeeded.
-- [ ] Owner GO for Part 2.
+- [x] Owner GO for Part 2.
 
 ## Deployment
 
@@ -60,3 +63,13 @@ ElectroLab must be built as a complete useful product without AI first.
 - No AI model, AI API, prompt layer or natural-language circuit generation during the current build.
 - The deterministic electrical engine remains the source of truth.
 - AI is optional only after a complete and validated non-AI v1.0.
+
+
+## v0.4 certification state
+
+- [x] Part 1 — structured searchable catalog.
+- [x] Part 2 — initial tertiary expansion and metadata-driven characteristics.
+- [x] GitHub Actions Node 20 passing on the implementation.
+- [x] GitHub Actions Node 22 passing on the implementation.
+- [x] Vercel Preview deployment succeeds.
+- [ ] Owner usability check before merging v0.4.
