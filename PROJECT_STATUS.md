@@ -46,7 +46,8 @@ Implemented in this branch:
 - [x] GitHub Actions green on pull request #1 (Node.js 20 and 22).
 - [x] Owner opened the Android UI successfully and explicitly approved progression to the next version.
 - [x] Default local port moved to 4174 to avoid conflict with NLabel on 4173.
-- [ ] Merge into `main` and tag `v0.1.0`.
+- [x] Merged into `main`.
+- [ ] Tag `v0.1.0` on the certified main commit.
 
 ## Version path to external review
 
@@ -98,3 +99,12 @@ The remote electrician review is deferred until v0.5. Each version is still inte
 The owner approved progression from v0.1 after the Android UI opened successfully, automated core tests passed, GitHub Actions passed, and Vercel Preview reached Ready.
 
 This certification means v0.1 is accepted as the internal foundation. It does **not** replace the planned structured remote-electrician review at v0.5.
+
+
+## v0.1 merge result
+
+Pull request #1 was merged into `main` as the certified v0.1 foundation.
+
+Main merge commit: `ecdccfe7a56367176a2e6bc45b8b69d370b9fb27`.
+
+Next implementation target: **v0.2 — Installation domestique**.
