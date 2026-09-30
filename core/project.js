@@ -1,72 +1,6 @@
-export const COMPONENT_LIBRARY = Object.freeze({
-  source: {
-    label: "Source 230 V",
-    symbol: "⎓",
-    terminals: [
-      { id: "L", label: "L", role: "line" },
-      { id: "N", label: "N", role: "neutral" },
-      { id: "PE", label: "PE", role: "protective-earth" }
-    ],
-    defaultProperties: { voltageV: 230 }
-  },
-  breaker: {
-    label: "Disjoncteur",
-    symbol: "Q",
-    terminals: [
-      { id: "L_IN", label: "L in", role: "line-in" },
-      { id: "L_OUT", label: "L out", role: "line-out" }
-    ],
-    defaultProperties: { ratingA: 16 }
-  },
-  switch: {
-    label: "Interrupteur",
-    symbol: "S",
-    terminals: [
-      { id: "L_IN", label: "L in", role: "line-in" },
-      { id: "L_OUT", label: "L out", role: "line-out" }
-    ],
-    defaultProperties: {}
-  },
-  lamp: {
-    label: "Lampe",
-    symbol: "✕",
-    terminals: [
-      { id: "L", label: "L", role: "line" },
-      { id: "N", label: "N", role: "neutral" }
-    ],
-    defaultProperties: { powerW: 60 }
-  },
-  socket: {
-    label: "Prise",
-    symbol: "◉",
-    terminals: [
-      { id: "L", label: "L", role: "line" },
-      { id: "N", label: "N", role: "neutral" },
-      { id: "PE", label: "PE", role: "protective-earth" }
-    ],
-    defaultProperties: {}
-  },
-  fuse: {
-    label: "Fusible",
-    symbol: "F",
-    terminals: [
-      { id: "L_IN", label: "L in", role: "line-in" },
-      { id: "L_OUT", label: "L out", role: "line-out" }
-    ],
-    defaultProperties: { ratingA: 16 }
-  },
-  rcd: {
-    label: "Différentiel",
-    symbol: "Δ",
-    terminals: [
-      { id: "L_IN", label: "L in", role: "line-in" },
-      { id: "N_IN", label: "N in", role: "neutral-in" },
-      { id: "L_OUT", label: "L out", role: "line-out" },
-      { id: "N_OUT", label: "N out", role: "neutral-out" }
-    ],
-    defaultProperties: { ratingA: 40, sensitivityMA: 30 }
-  }
-});
+import { COMPONENT_CATALOG, getComponentDefinition } from "./catalog.js";
+
+export const COMPONENT_LIBRARY = COMPONENT_CATALOG;
 
 function makeId(prefix) {
   const uuid = globalThis.crypto?.randomUUID?.();
@@ -77,7 +11,7 @@ export function createProject({ id = makeId("project"), name = "Mini laboratoire
   return {
     id,
     name,
-    version: "0.3.0",
+    version: "0.4.0",
     exerciseId,
     exerciseProgress: {
       attempts: 0,
@@ -91,12 +25,13 @@ export function createProject({ id = makeId("project"), name = "Mini laboratoire
 }
 
 export function createComponent(type, options = {}) {
-  const definition = COMPONENT_LIBRARY[type];
+  const definition = getComponentDefinition(type);
   if (!definition) throw new Error(`Unknown component type: ${type}`);
 
   return {
     id: options.id || makeId(type),
     type,
+    catalogId: definition.catalogId,
     name: options.name || definition.label,
     x: Number.isFinite(options.x) ? options.x : 40,
     y: Number.isFinite(options.y) ? options.y : 40,
@@ -193,13 +128,17 @@ export function deserializeProject(json) {
   }
   return {
     ...parsed,
-    version: parsed.version || "0.3.0",
+    version: parsed.version || "0.4.0",
     exerciseId: parsed.exerciseId || null,
     exerciseProgress: {
       attempts: Number(parsed.exerciseProgress?.attempts || 0),
       lastResult: parsed.exerciseProgress?.lastResult || null,
       history: Array.isArray(parsed.exerciseProgress?.history) ? parsed.exerciseProgress.history : []
     },
+    components: parsed.components.map((component) => ({
+      ...component,
+      catalogId: component.catalogId || getComponentDefinition(component.type)?.catalogId || component.type
+    })),
     updatedAt: parsed.updatedAt || new Date().toISOString()
   };
 }

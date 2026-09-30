@@ -3,14 +3,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>ElectroLab AI — Mini laboratoire pédagogique</title>
+  <title>ElectroLab AI — Bibliothèque électrique</title>
   <link rel="stylesheet" href="./styles.css" />
 </head>
 <body>
   <header class="topbar">
     <div>
       <strong>ElectroLab AI</strong>
-      <span class="version">v0.3 — Mini laboratoire</span>
+      <span class="version">v0.4 — Bibliothèque électrique</span>
     </div>
     <div class="top-actions">
       <button id="new-project">Nouveau</button>
@@ -38,15 +38,12 @@
         </div>
       </section>
 
-      <h2>Composants</h2>
-      <p>Clique pour ajouter au plan.</p>
-      <button data-add="source">⎓ Source 230 V</button>
-      <button data-add="breaker">Q Disjoncteur</button>
-      <button data-add="switch">S Interrupteur</button>
-      <button data-add="lamp">✕ Lampe</button>
-      <button data-add="socket">◉ Prise</button>
-      <button data-add="fuse">F Fusible</button>
-      <button data-add="rcd">Δ Différentiel</button>
+      <h2>Bibliothèque</h2>
+      <p>Recherche puis ajoute un composant au plan.</p>
+      <input id="component-search" class="component-search" type="search" placeholder="Rechercher un composant…" autocomplete="off" />
+      <select id="component-category" class="component-category"></select>
+      <div id="component-buttons" class="component-buttons"></div>
+      <p id="component-empty" class="component-empty" hidden>Aucun composant trouvé.</p>
       <div class="tip">
         <strong>Câblage</strong>
         <span>Clique une borne, puis la borne de destination.</span>

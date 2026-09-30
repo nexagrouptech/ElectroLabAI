@@ -2,6 +2,7 @@ import { COMPONENT_LIBRARY, findTerminal } from "./project.js";
 
 const ALLOWED_BREAKER_RATINGS = [10, 16, 20, 32, 40];
 const ALLOWED_FUSE_RATINGS = [10, 16, 20, 32];
+const FULLY_VALIDATED_TYPES = new Set(["source", "breaker", "switch", "lamp", "socket", "fuse", "rcd"]);
 
 function endpointKey(ref) {
   return `${ref.componentId}::${ref.terminalId}`;
@@ -268,14 +269,24 @@ export function validateProject(project) {
 
   const lamp = firstOf(project, "lamp");
   const sockets = allOf(project, "socket");
-  if (!lamp && sockets.length === 0) {
-    checks.push({ id: "load-present", ok: false, label: "Au moins une charge (lampe ou prise)" });
+  const loads = project.components.filter((component) => COMPONENT_LIBRARY[component.type]?.category === "load");
+  if (loads.length === 0) {
+    checks.push({ id: "load-present", ok: false, label: "Au moins un récepteur" });
     errors.push({
       code: "MISSING_LOAD",
-      message: "Ajoute au moins une lampe ou une prise à l’installation."
+      message: "Ajoute au moins un récepteur à l’installation."
     });
   } else {
-    checks.push({ id: "load-present", ok: true, label: "Au moins une charge (lampe ou prise)" });
+    checks.push({ id: "load-present", ok: true, label: "Au moins un récepteur" });
+  }
+
+  for (const component of project.components) {
+    if (!FULLY_VALIDATED_TYPES.has(component.type)) {
+      errors.push({
+        code: "VALIDATION_PENDING_FOR_COMPONENT",
+        message: `${component.name}: la bibliothèque connaît ce composant, mais ses règles électriques complètes seront ajoutées à l’étape de validation/simulation.`
+      });
+    }
   }
 
   validateProtectionProperties(project, checks, errors);
