@@ -4,85 +4,59 @@
 
 **v0.4 — Bibliothèque électrique**
 
-### Part 1 — Exercise model + learner entry flow
+### Part 1 — Structured catalog + searchable dynamic palette
 
 Implemented:
 
-- project model version moved to `0.3.0`;
-- projects can carry an `exerciseId`;
-- reusable `core/exercises.js` registry;
-- exercise fields: instruction, objective, allowed components, constraints, rule id and maximum score;
-- predefined **Allumer une lampe** exercise;
-- predefined **Protéger une prise domestique** exercise;
-- learner can choose an exercise and press **Commencer l’exercice**;
-- the active exercise disables components that are not allowed;
-- v0.2/v0.1 local saves remain loadable;
-- automated tests cover exercise definitions, project binding, restrictions and persistence.
+- new `core/catalog.js` is the structured source of truth for component definitions;
+- each component has a stable `catalogId`, type, label, symbol, category, tags, terminals and default properties;
+- current residential catalog contains Source, Disjoncteur, Interrupteur, Lampe, Prise, Fusible and Différentiel;
+- project model moved to `0.4.0`;
+- new components persist their stable `catalogId`;
+- older saved projects are normalized with the matching catalog id on reload;
+- component palette is no longer hard-coded in HTML;
+- palette is generated dynamically from the catalog;
+- text search works across labels, ids and tags;
+- category filter supports Alimentation, Protection, Commande and Récepteurs;
+- exercise restrictions still disable components that are not allowed;
+- automated tests cover catalog ids, search, category filtering and save normalization.
 
-### Part 2 — Exercise verification
+### Part 2 — Catalog expansion + configurable characteristics
 
-Implemented:
+Next after owner GO:
 
-- dedicated **Vérifier mon circuit** workflow;
-- exercise-specific required criteria;
-- deterministic pass/fail using the existing electrical validator;
-- deterministic pedagogical feedback;
-- attempt counter with local history;
-- basic score structure from 0 to 100;
-- exercise result persists with the project.
+- add the first additional residential/tertiary components from the specification;
+- move property editing toward catalog-defined property metadata;
+- keep stable terminal definitions;
+- add tests for every new registered component;
+- preserve the deterministic non-AI architecture.
 
 ## Certified foundations
 
-- [x] v0.1 merged to `main`.
-- [x] v0.2 merged to `main`.
+- [x] v0.1 — Circuit Lampe merged to `main`.
+- [x] v0.2 — Installation domestique merged to `main`.
+- [x] v0.3 — Mini laboratoire pédagogique merged to `main`.
 - [ ] v0.1 tag remains pending.
 
 ## Current branch
 
-`main`
+`feature/v0.4-library`
+
+## Validation
+
+- [x] GitHub Actions Node 20 passed.
+- [x] GitHub Actions Node 22 passed.
+- [x] Vercel Preview deployment succeeded.
+- [ ] Owner GO for Part 2.
 
 ## Deployment
 
 GitHub → Vercel automatic previews remain active. Local port remains 4174.
 
-## External validation gate
-
-Remote electrician review remains scheduled for **v0.5**.
-
-
-## Part 1 certification
-
-- [x] Exercise registry implemented.
-- [x] Learner entry flow implemented.
-- [x] GitHub Actions Node 20 passed.
-- [x] GitHub Actions Node 22 passed.
-- [x] Vercel Preview deployment succeeded.
-- [x] Owner GO for Part 2.
-
-
 ## AI policy — owner decision 2026-10-01
 
-ElectroLab must be built as a complete useful product **without AI** first.
+ElectroLab must be built as a complete useful product without AI first.
 
-- Do not add an AI model, AI API, prompt layer, natural-language circuit generation or AI correction during the current product build.
+- No AI model, AI API, prompt layer or natural-language circuit generation during the current build.
 - The deterministic electrical engine remains the source of truth.
-- All core product capabilities must work without AI.
-- AI is deferred to an optional **post-v1.0** phase, after the non-AI product is complete and validated.
-
-## v0.3 Part 2 certification state
-
-- [x] Deterministic exercise evaluation implemented.
-- [x] Pass/fail and score implemented.
-- [x] Attempt persistence implemented.
-- [x] Vercel deployment succeeds.
-- [x] GitHub Actions has passing Node 20 and Node 22 runs for the implementation.
-- [x] Owner approved v0.3 for progression.
-
-
-## v0.3 merge result
-
-PR #3 was merged into `main`.
-
-Main merge commit: `2558b5e891ed9fe9fbec150b75305a6309679d79`.
-
-Next implementation target: **v0.4 — Bibliothèque électrique**.
+- AI is optional only after a complete and validated non-AI v1.0.
