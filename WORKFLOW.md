@@ -28,7 +28,7 @@ Large tasks are split into small parts to avoid long-running sessions and timeou
 
 ## Current branch
 
-`feature/v0.1-circuit-lampe`
+`feature/v0.2-installation-domestique`
 
 
 ## Deployment workflow

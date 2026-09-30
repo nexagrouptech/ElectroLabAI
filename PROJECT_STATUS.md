@@ -2,109 +2,82 @@
 
 ## Current target
 
-**Session 1 — v0.1 Circuit Lampe**
+**v0.2 — Installation domestique**
 
-A user must be able to:
+Current work is split into small certifiable parts.
 
-1. open ElectroLab;
-2. add a 230 V source, breaker, switch and lamp;
-3. move the components on a 2D grid;
-4. connect terminals visually;
-5. edit component properties, including breaker rating;
-6. validate the circuit with deterministic rules;
-7. save and reload the project locally.
+### Part 1 — Domestic component primitives
 
-## Current implementation
+Goal: extend the v0.1 electrical model and visible palette without yet pretending that all domestic validation rules are complete.
 
-Branch: `feature/v0.1-circuit-lampe`
+Implemented in this part:
 
-Implemented in this branch:
+- project model version moved to `0.2.0`;
+- Source now exposes L, N and PE terminals for new v0.2 projects;
+- new **Prise** component with L / N / PE;
+- new **Fusible** component with L in / L out and configurable rating;
+- new **Différentiel** component with L/N input/output terminals, configurable rating and sensitivity;
+- v0.2 palette exposes all seven component types;
+- v0.1 local saves remain loadable as a legacy fallback;
+- v0.1 lamp validation remains intact while v0.2 domestic validation is built next;
+- automated tests cover the new component definitions.
 
-- Node.js + Express local server;
-- structured `Project / Component / Terminal / Wire` model;
-- first component library: source, breaker, switch, lamp;
-- interactive 2D workspace;
-- visual terminal-to-terminal wiring;
-- component dragging;
-- breaker rating and component property editing;
-- deterministic lamp-circuit validation;
-- local save/reload;
-- ready-made working example;
-- automated unit tests;
-- GitHub Actions CI on Node.js 20 and 22.
+### Part 2 — Domestic validation rules
 
-## Definition of done for v0.1
+Implemented:
 
-- [x] Four core components exist.
-- [x] User can place and move them.
-- [x] User can wire terminals.
-- [x] Breaker rating is editable.
-- [x] Validation gives reproducible errors.
-- [x] A correct circuit can pass validation.
-- [x] Project can be saved and reloaded locally.
-- [x] Automated tests exist.
-- [x] GitHub Actions green on pull request #1 (Node.js 20 and 22).
-- [x] Owner opened the Android UI successfully and explicitly approved progression to the next version.
-- [x] Default local port moved to 4174 to avoid conflict with NLabel on 4173.
-- [x] Merged into `main`.
-- [ ] Tag `v0.1.0` on the certified main commit.
+- deterministic socket validation supports either a **Disjoncteur** or **Fusible** as the overcurrent protection;
+- phase path checked as Source L → Différentiel → protection → Prise L;
+- neutral path checked as Source N → Différentiel → Prise N;
+- PE continuity checked as Source PE → Prise PE;
+- Fuse ratings 10 / 16 / 20 / 32 A are enforced;
+- RCD rating and sensitivity must be positive values;
+- blocking electrical/topology problems go to `errors`;
+- non-blocking conditions such as unused terminals or multiple overcurrent devices go to `warnings`;
+- the **Exemple** button now loads a complete domestic socket example;
+- the example lays out vertically on narrow/mobile screens and horizontally on wider screens;
+- v0.1 lamp validation remains supported;
+- focused tests cover valid breaker/fuse socket paths and invalid PE/neutral/rating/sensitivity cases.
 
-## Version path to external review
+Status: **Part 2 complete and automated validation green**.
 
-Canonical roadmap: `ROADMAP.md`.
+- GitHub Actions Node 20: PASS
+- GitHub Actions Node 22: PASS
+- Vercel Preview deployment: READY
+- Next gate: owner usability check before certifying/merging v0.2.
 
-The previously agreed sequence is now recorded explicitly:
+## v0.1 certified foundation
 
-- v0.1 — Circuit Lampe
-- v0.2 — Installation domestique
-- v0.3 — Mini laboratoire pédagogique
-- v0.4 — Bibliothèque électrique
-- v0.5 — Assistant IA Lite
+- [x] Circuit Lampe implementation complete.
+- [x] GitHub Actions passed.
+- [x] Vercel Preview reached Ready.
+- [x] Owner approved progression.
+- [x] Pull request #1 merged into `main`.
+- [ ] Tag `v0.1.0` still needs to be created on the certified main history.
 
-The remote electrician review is deferred until v0.5. Each version is still internally certified before starting the next one.
+## Current branch
 
+`feature/v0.2-installation-domestique`
 
-## Remote tester deployment
+## Deployment
 
-- [x] Vercel-ready static build added (`npm run build` → `dist/`).
-- [x] GitHub Actions now validates the static build.
-- [x] Git-driven Vercel preview deployment created successfully.
+- Vercel Git integration is active.
+- Feature pushes create Preview deployments automatically.
+- Local development uses port 4174 because NLabel uses 4173.
+- Static deployment contract: `npm run build` → `dist/` with `"framework": null`.
 
+## External validation gate
 
+The structured remote-electrician review remains scheduled for **v0.5**, after v0.2 domestic rules, v0.3 exercises, v0.4 component library work, and v0.5 AI Lite are internally usable.
 
-## Vercel remote tester
-
-- [x] Vercel project `electro-lab-ai` created.
-- [x] GitHub repository `nexagrouptech/ElectroLabAI` connected to Vercel.
-- [x] Static build configuration available (`npm run build` → `dist/`).
-- [x] Vercel preview deployment reached Ready on the feature branch (deployment `Bdk7qfhcGScwqKSeUkKAgGn8Ys1D`).
-- [ ] Public access from an external browser/user verified.
-- [ ] Remote electrician usability validation completed — intentionally deferred until v0.5.
+See `ROADMAP.md`.
 
 
-## Recent project-specific discoveries
+## v0.2 current certification state
 
-- NLabel already owns local port 4173 on the phone; ElectroLab uses 4174 locally.
-- Vercel project: `electro-lab-ai`.
-- GitHub repository: `nexagrouptech/ElectroLabAI`.
-- Git integration is active: pushes to the feature branch trigger Vercel Preview deployments automatically.
-- The first Vercel build failed because dependency-based detection selected Express even though the intended deployable artifact is static.
-- Project fix: `vercel.json` now sets `"framework": null`, keeps `npm run build`, and serves `dist/`.
-- After that fix, Vercel reached Ready successfully.
-- Current long branch Preview URL is for development review only; the short production domain will be finalized before the v0.5 external electrician review.
-
-
-## v0.1 certification note
-
-The owner approved progression from v0.1 after the Android UI opened successfully, automated core tests passed, GitHub Actions passed, and Vercel Preview reached Ready.
-
-This certification means v0.1 is accepted as the internal foundation. It does **not** replace the planned structured remote-electrician review at v0.5.
-
-
-## v0.1 merge result
-
-Pull request #1 was merged into `main` as the certified v0.1 foundation.
-
-Main merge commit: `ecdccfe7a56367176a2e6bc45b8b69d370b9fb27`.
-
-Next implementation target: **v0.2 — Installation domestique**.
+- [x] Part 1 — domestic component primitives.
+- [x] Part 2 — deterministic domestic validation rules.
+- [x] Automated tests pass on Node 20 and Node 22.
+- [x] Vercel Preview deployment succeeds.
+- [x] Owner approved the v0.2 Preview for progression.
+- [ ] Merge PR #2 to `main` after acceptance.

@@ -4,7 +4,8 @@ export const COMPONENT_LIBRARY = Object.freeze({
     symbol: "⎓",
     terminals: [
       { id: "L", label: "L", role: "line" },
-      { id: "N", label: "N", role: "neutral" }
+      { id: "N", label: "N", role: "neutral" },
+      { id: "PE", label: "PE", role: "protective-earth" }
     ],
     defaultProperties: { voltageV: 230 }
   },
@@ -34,6 +35,36 @@ export const COMPONENT_LIBRARY = Object.freeze({
       { id: "N", label: "N", role: "neutral" }
     ],
     defaultProperties: { powerW: 60 }
+  },
+  socket: {
+    label: "Prise",
+    symbol: "◉",
+    terminals: [
+      { id: "L", label: "L", role: "line" },
+      { id: "N", label: "N", role: "neutral" },
+      { id: "PE", label: "PE", role: "protective-earth" }
+    ],
+    defaultProperties: {}
+  },
+  fuse: {
+    label: "Fusible",
+    symbol: "F",
+    terminals: [
+      { id: "L_IN", label: "L in", role: "line-in" },
+      { id: "L_OUT", label: "L out", role: "line-out" }
+    ],
+    defaultProperties: { ratingA: 16 }
+  },
+  rcd: {
+    label: "Différentiel",
+    symbol: "Δ",
+    terminals: [
+      { id: "L_IN", label: "L in", role: "line-in" },
+      { id: "N_IN", label: "N in", role: "neutral-in" },
+      { id: "L_OUT", label: "L out", role: "line-out" },
+      { id: "N_OUT", label: "N out", role: "neutral-out" }
+    ],
+    defaultProperties: { ratingA: 40, sensitivityMA: 30 }
   }
 });
 
@@ -42,11 +73,11 @@ function makeId(prefix) {
   return uuid ? `${prefix}-${uuid}` : `${prefix}-${Date.now()}-${Math.random().toString(16).slice(2)}`;
 }
 
-export function createProject({ id = makeId("project"), name = "Circuit lampe" } = {}) {
+export function createProject({ id = makeId("project"), name = "Installation domestique" } = {}) {
   return {
     id,
     name,
-    version: "0.1.0",
+    version: "0.2.0",
     components: [],
     wires: [],
     updatedAt: new Date().toISOString()
@@ -156,7 +187,7 @@ export function deserializeProject(json) {
   }
   return {
     ...parsed,
-    version: parsed.version || "0.1.0",
+    version: parsed.version || "0.2.0",
     updatedAt: parsed.updatedAt || new Date().toISOString()
   };
 }
