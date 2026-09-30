@@ -46,7 +46,7 @@ Done when a user can assemble and validate a small domestic installation without
 
 ## v0.3 — Mini laboratoire pédagogique
 
-Status: **Part 1 complete — exercise model + learner entry flow; awaiting owner GO for Part 2**.
+Status: **Part 2 implemented — deterministic verification, attempts and scoring; awaiting owner usability certification**.
 
 Goal: turn the editor into a first teachable laboratory.
 
@@ -78,32 +78,29 @@ Scope:
 
 Done when the editor can grow by registering components without rewriting the whole interface.
 
-## v0.5 — Assistant IA Lite
+## v0.5 — Validation électrique & simulation sans IA
 
-Goal: add a useful AI layer without allowing AI to bypass electrical correctness.
+Goal: strengthen the deterministic non-AI product before 3D and classroom work.
 
 Scope:
 
-- user describes a simple circuit in natural language
-- AI produces or proposes a structured circuit representation
-- deterministic engine validates the proposed result
-- invalid AI output is rejected or returned for correction
-- guided correction/explanation for simple mistakes
-- AI remains an orchestration layer, never the electrical source of truth
+- expand deterministic electrical rules;
+- improve supported calculations and protection checks;
+- refine feedback and UX;
+- prepare a stable electrical/pedagogical baseline for expert review.
 
-Done when a user can request a simple supported circuit in text and obtain a structured, deterministic-validated result.
+**AI is explicitly out of scope.**
 
 ## External electrician review gate
 
-The remote electrician review is intentionally deferred until **v0.5**.
+The structured electrician review remains planned around the mature non-AI electrical/pedagogical milestone.
 
-At v0.5, the shared test should cover:
+It should cover:
 
 - electrical correctness of components, terminals and protection rules;
 - practical realism of domestic circuits;
 - clarity of warnings/errors;
 - usefulness of the exercise workflow;
-- usefulness and safety of AI-generated circuit proposals;
 - major missing electrical rules before 3D/classroom work.
 
 ## Later versions
@@ -118,8 +115,16 @@ At v0.5, the shared test should cover:
 
 ## Product sequencing rule
 
-Do not let AI, 3D or collaboration become the source of truth.
+The deterministic electrical model remains the source of truth.
 
-The progression remains:
+Current progression:
 
-electrical model → reliable 2D → richer library/rules → pedagogy → AI Lite → 3D → classroom/collaboration → evaluation → pilots.
+electrical model → reliable 2D → richer library/rules → pedagogy → deterministic validation/simulation → 3D → classroom/collaboration → evaluation → pilots → v1.0 complete non-AI product.
+
+## AI — deferred post-v1.0
+
+AI was previously planned at v0.5. The owner changed the strategy on 2026-10-01.
+
+**Do not integrate AI before the non-AI product is complete.**
+
+After v1.0 is complete and validated, AI may be reconsidered as an optional v1.x/post-v1.0 layer.
