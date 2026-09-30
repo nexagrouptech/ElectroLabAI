@@ -29,7 +29,7 @@ Large tasks are split into small parts to avoid long-running sessions and timeou
 
 ## Current branch
 
-`feature/v0.3-mini-lab`
+`main` — next branch: `feature/v0.4-library`
 
 
 ## Deployment workflow
