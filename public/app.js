@@ -7,8 +7,8 @@ import {
   removeComponent,
   serializeProject,
   updateComponent
-} from "/core/project.js";
-import { validateProject } from "/core/validator.js";
+} from "./core/project.js";
+import { validateProject } from "./core/validator.js";
 
 const STORAGE_KEY = "electrolab.v0.1.project";
 const workspace = document.querySelector("#workspace");
