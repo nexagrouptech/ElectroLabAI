@@ -2,7 +2,7 @@
 
 ## Current target
 
-**v0.3 — Mini laboratoire pédagogique**
+**v0.4 — Bibliothèque électrique**
 
 ### Part 1 — Exercise model + learner entry flow
 
@@ -39,7 +39,7 @@ Implemented:
 
 ## Current branch
 
-`feature/v0.3-mini-lab`
+`main`
 
 ## Deployment
 
@@ -77,3 +77,12 @@ ElectroLab must be built as a complete useful product **without AI** first.
 - [x] Vercel deployment succeeds.
 - [x] GitHub Actions has passing Node 20 and Node 22 runs for the implementation.
 - [x] Owner approved v0.3 for progression.
+
+
+## v0.3 merge result
+
+PR #3 was merged into `main`.
+
+Main merge commit: `2558b5e891ed9fe9fbec150b75305a6309679d79`.
+
+Next implementation target: **v0.4 — Bibliothèque électrique**.
