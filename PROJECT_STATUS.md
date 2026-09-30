@@ -53,3 +53,10 @@ Implemented in this branch:
 **v0.2 — Installation domestique**
 
 Do not start before v0.1 is accepted.
+
+
+## Remote tester deployment
+
+- [x] Vercel-ready static build added (`npm run build` → `dist/`).
+- [x] GitHub Actions now validates the static build.
+- [ ] Public Vercel deployment URL created and tested.
