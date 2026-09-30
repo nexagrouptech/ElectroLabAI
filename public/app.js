@@ -10,9 +10,10 @@ import {
 } from "./core/project.js";
 import { validateProject } from "./core/validator.js";
 import { createExerciseProject, evaluateExercise, getExercise, isComponentAllowed, listExercises, recordExerciseAttempt } from "./core/exercises.js";
+import { COMPONENT_CATEGORIES, searchComponentDefinitions } from "./core/catalog.js";
 
-const STORAGE_KEY = "electrolab.v0.3.project";
-const LEGACY_STORAGE_KEYS = ["electrolab.v0.2.project", "electrolab.v0.1.project"];
+const STORAGE_KEY = "electrolab.v0.4.project";
+const LEGACY_STORAGE_KEYS = ["electrolab.v0.3.project", "electrolab.v0.2.project", "electrolab.v0.1.project"];
 const workspace = document.querySelector("#workspace");
 const componentLayer = document.querySelector("#component-layer");
 const wireLayer = document.querySelector("#wire-layer");
@@ -33,6 +34,10 @@ const verifyExerciseButton = document.querySelector("#verify-exercise");
 const exerciseResult = document.querySelector("#exercise-result");
 const exerciseResultTitle = document.querySelector("#exercise-result-title");
 const exerciseResultSummary = document.querySelector("#exercise-result-summary");
+const componentSearch = document.querySelector("#component-search");
+const componentCategory = document.querySelector("#component-category");
+const componentButtons = document.querySelector("#component-buttons");
+const componentEmpty = document.querySelector("#component-empty");
 
 let project = createProject();
 let selectedComponentId = null;
@@ -55,21 +60,15 @@ document.querySelector("#start-exercise").addEventListener("click", () => {
   render();
 });
 
-document.querySelectorAll("[data-add]").forEach((button) => {
-  button.addEventListener("click", () => {
-    if (!isComponentAllowed(project.exerciseId, button.dataset.add)) {
-      showError("Ce composant n’est pas autorisé dans cet exercice.");
-      return;
-    }
-    const index = project.components.length;
-    const component = addComponent(project, button.dataset.add, {
-      x: 35 + (index % 3) * 180,
-      y: 45 + Math.floor(index / 3) * 145
-    });
-    selectedComponentId = component.id;
-    render();
-  });
-});
+for (const [value, label] of Object.entries(COMPONENT_CATEGORIES)) {
+  const option = document.createElement("option");
+  option.value = value;
+  option.textContent = label;
+  componentCategory.appendChild(option);
+}
+
+componentSearch.addEventListener("input", renderComponentPalette);
+componentCategory.addEventListener("change", renderComponentPalette);
 
 document.querySelector("#new-project").addEventListener("click", () => {
   project = createProject();
@@ -189,7 +188,7 @@ window.addEventListener("resize", drawWires);
 
 function render() {
   componentLayer.replaceChildren();
-  renderPaletteAvailability();
+  renderComponentPalette();
   verifyExerciseButton.disabled = !project.exerciseId;
   renderExerciseResult(project.exerciseProgress?.lastResult || null);
   emptyState.hidden = project.components.length > 0;
@@ -406,12 +405,43 @@ function renderExerciseResult(attempt) {
     (attempt.feedback?.length ? ` • ${attempt.feedback[0]}` : "");
 }
 
-function renderPaletteAvailability() {
-  document.querySelectorAll("[data-add]").forEach((button) => {
-    const allowed = isComponentAllowed(project.exerciseId, button.dataset.add);
-    button.disabled = !allowed;
-    button.title = allowed ? "" : "Composant non autorisé pour l’exercice actif";
+function renderComponentPalette() {
+  const definitions = searchComponentDefinitions({
+    query: componentSearch.value,
+    category: componentCategory.value || "all"
   });
+
+  componentButtons.replaceChildren();
+  componentEmpty.hidden = definitions.length > 0;
+
+  for (const definition of definitions) {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.dataset.add = definition.type;
+    button.innerHTML = `<span>${definition.symbol}</span><span>${escapeHtml(definition.label)}</span>`;
+
+    const allowed = isComponentAllowed(project.exerciseId, definition.type);
+    button.disabled = !allowed;
+    button.title = allowed ? definition.catalogId : "Composant non autorisé pour l’exercice actif";
+
+    button.addEventListener("click", () => {
+      if (!isComponentAllowed(project.exerciseId, definition.type)) {
+        showError("Ce composant n’est pas autorisé dans cet exercice.");
+        return;
+      }
+
+      const index = project.components.length;
+      const component = addComponent(project, definition.type, {
+        x: 35 + (index % 3) * 180,
+        y: 45 + Math.floor(index / 3) * 145
+      });
+      selectedComponentId = component.id;
+      clearValidation();
+      render();
+    });
+
+    componentButtons.appendChild(button);
+  }
 }
 
 function clearValidation() {
