@@ -64,7 +64,7 @@ Done when a learner can open an exercise, build a circuit, verify it, and receiv
 
 ## v0.4 — Bibliothèque électrique
 
-Status: **starting — Part 1 (structured catalog + dynamic searchable palette)**.
+Status: **Part 1 complete — structured catalog + dynamic searchable palette; awaiting owner GO for Part 2**.
 
 Goal: make component discovery and configuration usable beyond the tiny starter palette.
 
