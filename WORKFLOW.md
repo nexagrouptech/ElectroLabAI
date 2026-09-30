@@ -29,3 +29,21 @@ Large tasks are split into small parts to avoid long-running sessions and timeou
 ## Current branch
 
 `feature/v0.1-circuit-lampe`
+
+
+## Deployment workflow
+
+Vercel is connected directly to `nexagrouptech/ElectroLabAI`.
+
+- Feature-branch pushes create/update a Vercel Preview automatically.
+- A Preview becoming Ready proves deployment, not product acceptance.
+- The configured production branch should only receive internally accepted versions.
+- Do not run manual Vercel deploys for ordinary branch updates when Git integration is healthy.
+- Keep the static deployment contract explicit: `npm run build` → `dist/`, with `"framework": null` in `vercel.json`.
+- Before external sharing, verify the exact public URL in an anonymous/private browser context.
+
+## External validation timing
+
+The remote electrician is not the gate for every tiny version.
+
+Internally certify v0.1 → v0.2 → v0.3 → v0.4 → v0.5, then send v0.5 for the first structured external electrician review.
