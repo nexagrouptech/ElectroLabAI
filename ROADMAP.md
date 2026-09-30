@@ -46,7 +46,7 @@ Done when a user can assemble and validate a small domestic installation without
 
 ## v0.3 — Mini laboratoire pédagogique
 
-Status: **starting — Part 1 (exercise model + learner entry flow)**.
+Status: **Part 1 complete — exercise model + learner entry flow; awaiting owner GO for Part 2**.
 
 Goal: turn the editor into a first teachable laboratory.
 

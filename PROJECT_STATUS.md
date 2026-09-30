@@ -47,3 +47,13 @@ GitHub → Vercel automatic previews remain active. Local port remains 4174.
 ## External validation gate
 
 Remote electrician review remains scheduled for **v0.5**.
+
+
+## Part 1 certification
+
+- [x] Exercise registry implemented.
+- [x] Learner entry flow implemented.
+- [x] GitHub Actions Node 20 passed.
+- [x] GitHub Actions Node 22 passed.
+- [x] Vercel Preview deployment succeeded.
+- [ ] Owner GO for Part 2.
