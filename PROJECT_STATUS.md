@@ -2,7 +2,7 @@
 
 ## Current target
 
-**v0.4 — Bibliothèque électrique**
+**v0.5 — Validation électrique & simulation sans IA**
 
 ### Part 1 — Structured catalog + searchable dynamic palette
 
@@ -43,7 +43,7 @@ Implemented:
 
 ## Current branch
 
-`feature/v0.4-library`
+`main`
 
 ## Validation
 
@@ -73,3 +73,12 @@ ElectroLab must be built as a complete useful product without AI first.
 - [x] GitHub Actions Node 22 passing on the implementation.
 - [x] Vercel Preview deployment succeeds.
 - [x] Owner approved v0.4 for progression.
+
+
+## v0.4 merge result
+
+PR #4 was merged into `main`.
+
+Main merge commit: `6bb338c1052cb3cf6e96f6357709925800480292`.
+
+Next implementation target: **v0.5 — Validation électrique & simulation sans IA**.
