@@ -1,0 +1,19 @@
+{
+  "name": "electrolab-ai",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Laboratoire électrique numérique pédagogique",
+  "type": "module",
+  "scripts": {
+    "start": "node server.mjs",
+    "test": "node --test",
+    "check": "node --check server.mjs && node --check core/project.js && node --check core/validator.js && node --check public/app.js",
+    "build": "node scripts/build-static.mjs"
+  },
+  "dependencies": {
+    "express": "^5.1.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

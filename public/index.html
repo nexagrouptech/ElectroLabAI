@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ElectroLab AI — Circuit Lampe</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <strong>ElectroLab AI</strong>
+      <span class="version">v0.1 — Circuit Lampe</span>
+    </div>
+    <div class="top-actions">
+      <button id="new-project">Nouveau</button>
+      <button id="demo-project">Exemple</button>
+      <button id="save-project">Sauvegarder</button>
+      <button id="load-project">Recharger</button>
+      <button id="validate-project" class="primary">Valider</button>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="panel palette">
+      <h2>Composants</h2>
+      <p>Clique pour ajouter au plan.</p>
+      <button data-add="source">⎓ Source 230 V</button>
+      <button data-add="breaker">Q Disjoncteur</button>
+      <button data-add="switch">S Interrupteur</button>
+      <button data-add="lamp">✕ Lampe</button>
+      <div class="tip">
+        <strong>Câblage</strong>
+        <span>Clique une borne, puis la borne de destination.</span>
+      </div>
+    </aside>
+
+    <section class="workspace-shell">
+      <div id="workspace" class="workspace" aria-label="Plan de câblage">
+        <svg id="wire-layer" class="wire-layer"></svg>
+        <div id="component-layer" class="component-layer"></div>
+        <div id="empty-state" class="empty-state">
+          <strong>Construis ton premier circuit</strong>
+          <span>Ajoute les 4 composants à gauche, ou charge l’exemple.</span>
+        </div>
+      </div>
+
+      <section id="validation-panel" class="validation-panel">
+        <div>
+          <strong id="validation-title">Pas encore vérifié</strong>
+          <span id="validation-summary">Construis le circuit puis appuie sur « Valider ».</span>
+        </div>
+        <ul id="validation-list"></ul>
+      </section>
+    </section>
+
+    <aside class="panel inspector">
+      <h2>Propriétés</h2>
+      <div id="inspector-empty">Sélectionne un composant.</div>
+      <form id="inspector-form" hidden>
+        <label>
+          Nom
+          <input id="component-name" type="text" />
+        </label>
+        <div id="property-fields"></div>
+        <button type="submit" class="primary">Appliquer</button>
+        <button type="button" id="delete-component" class="danger">Supprimer</button>
+      </form>
+    </aside>
+  </main>
+
+  <footer>
+    Modèle électrique déterministe • données sauvegardées localement sur cet appareil
+  </footer>
+
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
