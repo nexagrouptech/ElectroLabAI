@@ -68,5 +68,6 @@ Do not start before v0.1 is accepted.
 - [x] Vercel project `electro-lab-ai` created.
 - [x] GitHub repository `nexagrouptech/ElectroLabAI` connected to Vercel.
 - [x] Static build configuration available (`npm run build` → `dist/`).
-- [ ] Preview deployment URL verified from the feature branch.
+- [x] Vercel preview deployment reached Ready on the feature branch (deployment `Bdk7qfhcGScwqKSeUkKAgGn8Ys1D`).
+- [ ] Public access from an external browser/user verified.
 - [ ] Remote electrician usability validation completed.
