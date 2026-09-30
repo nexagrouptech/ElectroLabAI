@@ -72,4 +72,4 @@ ElectroLab must be built as a complete useful product without AI first.
 - [x] GitHub Actions Node 20 passing on the implementation.
 - [x] GitHub Actions Node 22 passing on the implementation.
 - [x] Vercel Preview deployment succeeds.
-- [ ] Owner usability check before merging v0.4.
+- [x] Owner approved v0.4 for progression.
