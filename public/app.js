@@ -9,7 +9,7 @@ import {
   updateComponent
 } from "./core/project.js";
 import { validateProject } from "./core/validator.js";
-import { createExerciseProject, getExercise, isComponentAllowed, listExercises } from "./core/exercises.js";
+import { createExerciseProject, evaluateExercise, getExercise, isComponentAllowed, listExercises, recordExerciseAttempt } from "./core/exercises.js";
 
 const STORAGE_KEY = "electrolab.v0.3.project";
 const LEGACY_STORAGE_KEYS = ["electrolab.v0.2.project", "electrolab.v0.1.project"];
@@ -29,6 +29,10 @@ const exerciseSelect = document.querySelector("#exercise-select");
 const exerciseName = document.querySelector("#exercise-name");
 const exerciseObjective = document.querySelector("#exercise-objective");
 const exerciseInstruction = document.querySelector("#exercise-instruction");
+const verifyExerciseButton = document.querySelector("#verify-exercise");
+const exerciseResult = document.querySelector("#exercise-result");
+const exerciseResultTitle = document.querySelector("#exercise-result-title");
+const exerciseResultSummary = document.querySelector("#exercise-result-summary");
 
 let project = createProject();
 let selectedComponentId = null;
@@ -128,6 +132,9 @@ document.querySelector("#load-project").addEventListener("click", () => {
   }
   try {
     project = deserializeProject(raw);
+    if (project.exerciseId && getExercise(project.exerciseId)) {
+      exerciseSelect.value = project.exerciseId;
+    }
     selectedComponentId = null;
     pendingTerminal = null;
     clearValidation();
@@ -138,6 +145,18 @@ document.querySelector("#load-project").addEventListener("click", () => {
 });
 
 document.querySelector("#validate-project").addEventListener("click", runValidation);
+
+verifyExerciseButton.addEventListener("click", () => {
+  if (!project.exerciseId) {
+    showError("Commence d’abord un exercice.");
+    return;
+  }
+
+  const validation = runValidation();
+  const result = evaluateExercise(project, validation);
+  const attempt = recordExerciseAttempt(project, result);
+  renderExerciseResult(attempt);
+});
 
 document.querySelector("#delete-component").addEventListener("click", () => {
   if (!selectedComponentId) return;
@@ -171,6 +190,8 @@ window.addEventListener("resize", drawWires);
 function render() {
   componentLayer.replaceChildren();
   renderPaletteAvailability();
+  verifyExerciseButton.disabled = !project.exerciseId;
+  renderExerciseResult(project.exerciseProgress?.lastResult || null);
   emptyState.hidden = project.components.length > 0;
 
   for (const component of project.components) {
@@ -356,6 +377,7 @@ function runValidation() {
   }
   for (const error of result.errors) addValidationLine(`Erreur — ${error.message}`);
   for (const warning of result.warnings) addValidationLine(`Attention — ${warning.message}`);
+  return result;
 }
 
 function renderExerciseSelection() {
@@ -364,6 +386,24 @@ function renderExerciseSelection() {
   exerciseName.textContent = exercise.title;
   exerciseObjective.textContent = `Objectif : ${exercise.objective}`;
   exerciseInstruction.textContent = exercise.instruction;
+  verifyExerciseButton.disabled = !project.exerciseId;
+}
+
+function renderExerciseResult(attempt) {
+  if (!attempt) {
+    exerciseResult.hidden = true;
+    exerciseResultTitle.textContent = "";
+    exerciseResultSummary.textContent = "";
+    return;
+  }
+
+  exerciseResult.hidden = false;
+  exerciseResult.classList.toggle("passed", Boolean(attempt.passed));
+  exerciseResult.classList.toggle("failed", !attempt.passed);
+  exerciseResultTitle.textContent = attempt.passed ? "Exercice réussi" : "Exercice à corriger";
+  exerciseResultSummary.textContent =
+    `Tentative ${attempt.attempt} • Score ${attempt.score}/${attempt.scoreMax}` +
+    (attempt.feedback?.length ? ` • ${attempt.feedback[0]}` : "");
 }
 
 function renderPaletteAvailability() {
