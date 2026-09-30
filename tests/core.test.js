@@ -9,7 +9,7 @@ import {
   updateComponent
 } from "../core/project.js";
 import { validateProject } from "../core/validator.js";
-import { createExerciseProject, getExercise, isComponentAllowed, listExercises } from "../core/exercises.js";
+import { createExerciseProject, evaluateExercise, getExercise, isComponentAllowed, listExercises, recordExerciseAttempt } from "../core/exercises.js";
 
 function validSocketProject(protectionType = "fuse") {
   const project = createProject({ id: "socket-project" });
@@ -205,4 +205,44 @@ test("persists exercise identity", () => {
   const project = createExerciseProject("socket-protected");
   const restored = deserializeProject(serializeProject(project));
   assert.equal(restored.exerciseId, "socket-protected");
+});
+
+
+test("passes the lamp exercise only when deterministic validation passes", () => {
+  const project = validLampProject();
+  project.exerciseId = "lamp-basic";
+  const result = evaluateExercise(project, validateProject(project));
+  assert.equal(result.passed, true);
+  assert.equal(result.score, 100);
+});
+
+test("fails the lamp exercise with deterministic feedback", () => {
+  const project = validLampProject();
+  project.exerciseId = "lamp-basic";
+  project.wires = project.wires.filter((wire) => wire.id !== "w2");
+  const result = evaluateExercise(project, validateProject(project));
+  assert.equal(result.passed, false);
+  assert.ok(result.feedback.length > 0);
+  assert.ok(result.score < 100);
+});
+
+test("passes the protected socket exercise", () => {
+  const project = validSocketProject("breaker");
+  project.exerciseId = "socket-protected";
+  const result = evaluateExercise(project, validateProject(project));
+  assert.equal(result.passed, true);
+  assert.equal(result.score, 100);
+});
+
+test("records exercise attempts and persists the latest result", () => {
+  const project = createExerciseProject("lamp-basic");
+  const result = { passed: false, score: 50, scoreMax: 100, feedback: ["À corriger"] };
+  const attempt = recordExerciseAttempt(project, result, "2026-10-01T00:00:00.000Z");
+  assert.equal(attempt.attempt, 1);
+  assert.equal(project.exerciseProgress.attempts, 1);
+  assert.equal(project.exerciseProgress.lastResult.score, 50);
+
+  const restored = deserializeProject(serializeProject(project));
+  assert.equal(restored.exerciseProgress.attempts, 1);
+  assert.equal(restored.exerciseProgress.history.length, 1);
 });
