@@ -21,14 +21,15 @@ Implemented:
 
 ### Part 2 — Exercise verification
 
-Next after GO:
+Implemented:
 
-- **Vérifier mon circuit** workflow;
-- exercise-specific expected criteria;
-- deterministic pass/fail result;
-- pedagogical feedback;
-- attempt tracking;
-- basic score/result structure.
+- dedicated **Vérifier mon circuit** workflow;
+- exercise-specific required criteria;
+- deterministic pass/fail using the existing electrical validator;
+- deterministic pedagogical feedback;
+- attempt counter with local history;
+- basic score structure from 0 to 100;
+- exercise result persists with the project.
 
 ## Certified foundations
 
@@ -56,4 +57,23 @@ Remote electrician review remains scheduled for **v0.5**.
 - [x] GitHub Actions Node 20 passed.
 - [x] GitHub Actions Node 22 passed.
 - [x] Vercel Preview deployment succeeded.
-- [ ] Owner GO for Part 2.
+- [x] Owner GO for Part 2.
+
+
+## AI policy — owner decision 2026-10-01
+
+ElectroLab must be built as a complete useful product **without AI** first.
+
+- Do not add an AI model, AI API, prompt layer, natural-language circuit generation or AI correction during the current product build.
+- The deterministic electrical engine remains the source of truth.
+- All core product capabilities must work without AI.
+- AI is deferred to an optional **post-v1.0** phase, after the non-AI product is complete and validated.
+
+## v0.3 Part 2 certification state
+
+- [x] Deterministic exercise evaluation implemented.
+- [x] Pass/fail and score implemented.
+- [x] Attempt persistence implemented.
+- [x] Vercel deployment succeeds.
+- [x] GitHub Actions has passing Node 20 and Node 22 runs for the implementation.
+- [ ] Owner usability check before merging v0.3.
