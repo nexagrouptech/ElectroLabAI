@@ -45,6 +45,7 @@ Implemented in this branch:
 - [x] Automated tests exist.
 - [x] GitHub Actions green on pull request #1 (Node.js 20 and 22).
 - [ ] Manual usability check on the user's device.
+- [x] Default local port moved to 4174 to avoid conflict with NLabel on 4173.
 - [ ] Merge into `main` and tag `v0.1.0`.
 
 ## Next version
