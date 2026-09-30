@@ -3,26 +3,41 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>ElectroLab AI — Installation domestique</title>
+  <title>ElectroLab AI — Mini laboratoire pédagogique</title>
   <link rel="stylesheet" href="./styles.css" />
 </head>
 <body>
   <header class="topbar">
     <div>
       <strong>ElectroLab AI</strong>
-      <span class="version">v0.2 — Installation domestique</span>
+      <span class="version">v0.3 — Mini laboratoire</span>
     </div>
     <div class="top-actions">
       <button id="new-project">Nouveau</button>
       <button id="demo-project">Exemple</button>
       <button id="save-project">Sauvegarder</button>
       <button id="load-project">Recharger</button>
-      <button id="validate-project" class="primary">Valider</button>
+      <button id="validate-project">Valider</button>
+      <button id="verify-exercise" class="primary" disabled>Vérifier mon circuit</button>
     </div>
   </header>
 
   <main class="layout">
     <aside class="panel palette">
+      <section class="exercise-box" aria-labelledby="exercise-title">
+        <h2 id="exercise-title">Exercice</h2>
+        <label for="exercise-select">Choisir</label>
+        <select id="exercise-select"></select>
+        <strong id="exercise-name">Choisis un exercice</strong>
+        <p id="exercise-objective">Les consignes apparaîtront ici.</p>
+        <p id="exercise-instruction"></p>
+        <button id="start-exercise" class="primary">Commencer l’exercice</button>
+        <div id="exercise-result" class="exercise-result" hidden>
+          <strong id="exercise-result-title"></strong>
+          <span id="exercise-result-summary"></span>
+        </div>
+      </section>
+
       <h2>Composants</h2>
       <p>Clique pour ajouter au plan.</p>
       <button data-add="source">⎓ Source 230 V</button>

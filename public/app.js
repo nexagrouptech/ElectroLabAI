@@ -9,9 +9,10 @@ import {
   updateComponent
 } from "./core/project.js";
 import { validateProject } from "./core/validator.js";
+import { createExerciseProject, evaluateExercise, getExercise, isComponentAllowed, listExercises, recordExerciseAttempt } from "./core/exercises.js";
 
-const STORAGE_KEY = "electrolab.v0.2.project";
-const LEGACY_STORAGE_KEY = "electrolab.v0.1.project";
+const STORAGE_KEY = "electrolab.v0.3.project";
+const LEGACY_STORAGE_KEYS = ["electrolab.v0.2.project", "electrolab.v0.1.project"];
 const workspace = document.querySelector("#workspace");
 const componentLayer = document.querySelector("#component-layer");
 const wireLayer = document.querySelector("#wire-layer");
@@ -24,13 +25,42 @@ const validationPanel = document.querySelector("#validation-panel");
 const validationTitle = document.querySelector("#validation-title");
 const validationSummary = document.querySelector("#validation-summary");
 const validationList = document.querySelector("#validation-list");
+const exerciseSelect = document.querySelector("#exercise-select");
+const exerciseName = document.querySelector("#exercise-name");
+const exerciseObjective = document.querySelector("#exercise-objective");
+const exerciseInstruction = document.querySelector("#exercise-instruction");
+const verifyExerciseButton = document.querySelector("#verify-exercise");
+const exerciseResult = document.querySelector("#exercise-result");
+const exerciseResultTitle = document.querySelector("#exercise-result-title");
+const exerciseResultSummary = document.querySelector("#exercise-result-summary");
 
 let project = createProject();
 let selectedComponentId = null;
 let pendingTerminal = null;
 
+for (const exercise of listExercises()) {
+  const option = document.createElement("option");
+  option.value = exercise.id;
+  option.textContent = exercise.title;
+  exerciseSelect.appendChild(option);
+}
+
+exerciseSelect.addEventListener("change", renderExerciseSelection);
+document.querySelector("#start-exercise").addEventListener("click", () => {
+  project = createExerciseProject(exerciseSelect.value);
+  selectedComponentId = null;
+  pendingTerminal = null;
+  clearValidation();
+  renderExerciseSelection();
+  render();
+});
+
 document.querySelectorAll("[data-add]").forEach((button) => {
   button.addEventListener("click", () => {
+    if (!isComponentAllowed(project.exerciseId, button.dataset.add)) {
+      showError("Ce composant n’est pas autorisé dans cet exercice.");
+      return;
+    }
     const index = project.components.length;
     const component = addComponent(project, button.dataset.add, {
       x: 35 + (index % 3) * 180,
@@ -92,7 +122,9 @@ document.querySelector("#save-project").addEventListener("click", () => {
 });
 
 document.querySelector("#load-project").addEventListener("click", () => {
-  const raw = localStorage.getItem(STORAGE_KEY) || localStorage.getItem(LEGACY_STORAGE_KEY);
+  const raw =
+    localStorage.getItem(STORAGE_KEY) ||
+    LEGACY_STORAGE_KEYS.map((key) => localStorage.getItem(key)).find(Boolean);
   if (!raw) {
     validationTitle.textContent = "Aucune sauvegarde";
     validationSummary.textContent = "Sauvegarde d’abord un projet sur cet appareil.";
@@ -100,6 +132,9 @@ document.querySelector("#load-project").addEventListener("click", () => {
   }
   try {
     project = deserializeProject(raw);
+    if (project.exerciseId && getExercise(project.exerciseId)) {
+      exerciseSelect.value = project.exerciseId;
+    }
     selectedComponentId = null;
     pendingTerminal = null;
     clearValidation();
@@ -110,6 +145,18 @@ document.querySelector("#load-project").addEventListener("click", () => {
 });
 
 document.querySelector("#validate-project").addEventListener("click", runValidation);
+
+verifyExerciseButton.addEventListener("click", () => {
+  if (!project.exerciseId) {
+    showError("Commence d’abord un exercice.");
+    return;
+  }
+
+  const validation = runValidation();
+  const result = evaluateExercise(project, validation);
+  const attempt = recordExerciseAttempt(project, result);
+  renderExerciseResult(attempt);
+});
 
 document.querySelector("#delete-component").addEventListener("click", () => {
   if (!selectedComponentId) return;
@@ -142,6 +189,9 @@ window.addEventListener("resize", drawWires);
 
 function render() {
   componentLayer.replaceChildren();
+  renderPaletteAvailability();
+  verifyExerciseButton.disabled = !project.exerciseId;
+  renderExerciseResult(project.exerciseProgress?.lastResult || null);
   emptyState.hidden = project.components.length > 0;
 
   for (const component of project.components) {
@@ -327,6 +377,41 @@ function runValidation() {
   }
   for (const error of result.errors) addValidationLine(`Erreur — ${error.message}`);
   for (const warning of result.warnings) addValidationLine(`Attention — ${warning.message}`);
+  return result;
+}
+
+function renderExerciseSelection() {
+  const exercise = getExercise(exerciseSelect.value);
+  if (!exercise) return;
+  exerciseName.textContent = exercise.title;
+  exerciseObjective.textContent = `Objectif : ${exercise.objective}`;
+  exerciseInstruction.textContent = exercise.instruction;
+  verifyExerciseButton.disabled = !project.exerciseId;
+}
+
+function renderExerciseResult(attempt) {
+  if (!attempt) {
+    exerciseResult.hidden = true;
+    exerciseResultTitle.textContent = "";
+    exerciseResultSummary.textContent = "";
+    return;
+  }
+
+  exerciseResult.hidden = false;
+  exerciseResult.classList.toggle("passed", Boolean(attempt.passed));
+  exerciseResult.classList.toggle("failed", !attempt.passed);
+  exerciseResultTitle.textContent = attempt.passed ? "Exercice réussi" : "Exercice à corriger";
+  exerciseResultSummary.textContent =
+    `Tentative ${attempt.attempt} • Score ${attempt.score}/${attempt.scoreMax}` +
+    (attempt.feedback?.length ? ` • ${attempt.feedback[0]}` : "");
+}
+
+function renderPaletteAvailability() {
+  document.querySelectorAll("[data-add]").forEach((button) => {
+    const allowed = isComponentAllowed(project.exerciseId, button.dataset.add);
+    button.disabled = !allowed;
+    button.title = allowed ? "" : "Composant non autorisé pour l’exercice actif";
+  });
 }
 
 function clearValidation() {
@@ -367,4 +452,5 @@ function escapeHtml(value) {
     .replaceAll("'", "&#039;");
 }
 
+renderExerciseSelection();
 render();

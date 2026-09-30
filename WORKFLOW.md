@@ -21,14 +21,15 @@ Large tasks are split into small parts to avoid long-running sessions and timeou
 
 ## Product constraints
 
-- Do not build complex AI or 3D before the electrical model and 2D editor are reliable.
-- AI may propose structures, but the deterministic electrical engine validates them.
+- Do not integrate AI during the current product build.
+- Build and validate the complete non-AI product first.
+- If AI is reconsidered after v1.0, it remains optional and the deterministic electrical engine remains the source of truth.
 - 2D and future 3D representations must use the same logical project model.
 - User-visible progress is preferred over long invisible infrastructure work.
 
 ## Current branch
 
-`main` — next branch: `feature/v0.3-mini-lab`
+`feature/v0.3-mini-lab`
 
 
 ## Deployment workflow
@@ -46,4 +47,4 @@ Vercel is connected directly to `nexagrouptech/ElectroLabAI`.
 
 The remote electrician is not the gate for every tiny version.
 
-Internally certify v0.1 → v0.2 → v0.3 → v0.4 → v0.5, then send v0.5 for the first structured external electrician review.
+Continue version-by-version on the non-AI roadmap. Expert electrical review must not depend on an AI milestone.
