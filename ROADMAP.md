@@ -23,9 +23,11 @@ Scope:
 - automated tests
 - browser-usable build
 
-Status: implementation complete; Vercel preview deployment works; final internal usability certification/merge/tag still pending.
+Status: internally certified and merged to `main`; tag `v0.1.0` is still pending.
 
 ## v0.2 — Installation domestique
+
+Status: **in progress — Part 1 (domestic component primitives)**.
 
 Goal: move from one lamp circuit to a small realistic domestic installation.
 

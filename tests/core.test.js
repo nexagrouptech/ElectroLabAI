@@ -24,10 +24,34 @@ function validLampProject() {
   return project;
 }
 
-test("creates the four supported components", () => {
+test("creates the v0.2 supported components", () => {
   const project = createProject();
-  for (const type of ["source", "breaker", "switch", "lamp"]) addComponent(project, type);
-  assert.deepEqual(project.components.map((item) => item.type), ["source", "breaker", "switch", "lamp"]);
+  for (const type of ["source", "breaker", "switch", "lamp", "socket", "fuse", "rcd"]) addComponent(project, type);
+  assert.deepEqual(project.components.map((item) => item.type), [
+    "source",
+    "breaker",
+    "switch",
+    "lamp",
+    "socket",
+    "fuse",
+    "rcd"
+  ]);
+  assert.equal(project.version, "0.2.0");
+});
+
+test("defines domestic terminals and default protection properties", () => {
+  const project = createProject();
+  const source = addComponent(project, "source", { id: "source-domestic" });
+  const socket = addComponent(project, "socket", { id: "socket" });
+  const fuse = addComponent(project, "fuse", { id: "fuse" });
+  const rcd = addComponent(project, "rcd", { id: "rcd" });
+
+  assert.deepEqual(source.terminals.map((item) => item.id), ["L", "N", "PE"]);
+  assert.deepEqual(socket.terminals.map((item) => item.id), ["L", "N", "PE"]);
+  assert.equal(fuse.properties.ratingA, 16);
+  assert.equal(rcd.properties.ratingA, 40);
+  assert.equal(rcd.properties.sensitivityMA, 30);
+  assert.deepEqual(rcd.terminals.map((item) => item.id), ["L_IN", "N_IN", "L_OUT", "N_OUT"]);
 });
 
 test("validates a complete lamp circuit", () => {
@@ -83,4 +107,5 @@ test("round-trips saved projects without losing data", () => {
   assert.equal(restored.components.length, 4);
   assert.equal(restored.wires.length, 4);
   assert.equal(restored.components.find((item) => item.id === "breaker").properties.ratingA, 16);
+  assert.equal(restored.version, "0.2.0");
 });

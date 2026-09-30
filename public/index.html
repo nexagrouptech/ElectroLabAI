@@ -3,14 +3,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>ElectroLab AI — Circuit Lampe</title>
+  <title>ElectroLab AI — Installation domestique</title>
   <link rel="stylesheet" href="./styles.css" />
 </head>
 <body>
   <header class="topbar">
     <div>
       <strong>ElectroLab AI</strong>
-      <span class="version">v0.1 — Circuit Lampe</span>
+      <span class="version">v0.2 — Installation domestique</span>
     </div>
     <div class="top-actions">
       <button id="new-project">Nouveau</button>
@@ -29,6 +29,9 @@
       <button data-add="breaker">Q Disjoncteur</button>
       <button data-add="switch">S Interrupteur</button>
       <button data-add="lamp">✕ Lampe</button>
+      <button data-add="socket">◉ Prise</button>
+      <button data-add="fuse">F Fusible</button>
+      <button data-add="rcd">Δ Différentiel</button>
       <div class="tip">
         <strong>Câblage</strong>
         <span>Clique une borne, puis la borne de destination.</span>
@@ -41,7 +44,7 @@
         <div id="component-layer" class="component-layer"></div>
         <div id="empty-state" class="empty-state">
           <strong>Construis ton premier circuit</strong>
-          <span>Ajoute les 4 composants à gauche, ou charge l’exemple.</span>
+          <span>Ajoute les composants nécessaires, ou charge l’exemple.</span>
         </div>
       </div>
 

@@ -10,7 +10,8 @@ import {
 } from "./core/project.js";
 import { validateProject } from "./core/validator.js";
 
-const STORAGE_KEY = "electrolab.v0.1.project";
+const STORAGE_KEY = "electrolab.v0.2.project";
+const LEGACY_STORAGE_KEY = "electrolab.v0.1.project";
 const workspace = document.querySelector("#workspace");
 const componentLayer = document.querySelector("#component-layer");
 const wireLayer = document.querySelector("#wire-layer");
@@ -73,7 +74,7 @@ document.querySelector("#save-project").addEventListener("click", () => {
 });
 
 document.querySelector("#load-project").addEventListener("click", () => {
-  const raw = localStorage.getItem(STORAGE_KEY);
+  const raw = localStorage.getItem(STORAGE_KEY) || localStorage.getItem(LEGACY_STORAGE_KEY);
   if (!raw) {
     validationTitle.textContent = "Aucune sauvegarde";
     validationSummary.textContent = "Sauvegarde d’abord un projet sur cet appareil.";
@@ -297,7 +298,9 @@ function runValidation() {
   validationPanel.classList.toggle("bad", !result.valid);
   validationTitle.textContent = result.valid ? "Circuit valide" : "Circuit à corriger";
   validationSummary.textContent = result.valid
-    ? "Le circuit lampe respecte les contrôles de la version 0.1."
+    ? result.warnings.length
+      ? `Circuit valide avec ${result.warnings.length} avertissement(s).`
+      : "Le circuit respecte les contrôles déterministes actuellement actifs."
     : `${result.errors.length} erreur(s), ${result.warnings.length} avertissement(s).`;
 
   validationList.replaceChildren();
@@ -332,7 +335,8 @@ function propertyLabel(key) {
   return {
     ratingA: "Calibre",
     voltageV: "Tension (V)",
-    powerW: "Puissance (W)"
+    powerW: "Puissance (W)",
+    sensitivityMA: "Sensibilité différentielle (mA)"
   }[key] || key;
 }
 
