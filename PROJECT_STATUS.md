@@ -60,3 +60,10 @@ Do not start before v0.1 is accepted.
 - [x] Vercel-ready static build added (`npm run build` → `dist/`).
 - [x] GitHub Actions now validates the static build.
 - [ ] Public Vercel deployment URL created and tested.
+
+
+## GitHub Pages remote tester fallback
+
+- [x] Static asset paths made portable for subpath hosting.
+- [x] GitHub Pages deployment workflow added for the v0.1 feature branch.
+- [ ] Public tester URL verified.
