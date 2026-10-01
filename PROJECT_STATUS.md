@@ -2,7 +2,7 @@
 
 ## Current target
 
-**v0.5 — Validation électrique & simulation sans IA**
+**v0.5 — External electrician review gate**
 
 ### Part 1 — Deterministic calculation summary
 
@@ -87,7 +87,7 @@ Status: **v0.5 functional scope complete; awaiting owner usability certification
 
 ## Current branch
 
-`feature/v0.5-validation-simulation`
+`main`
 
 ## Validation gate
 
@@ -131,6 +131,18 @@ Implementation pushed with dedicated tests.
 - [x] GitHub Actions Node 22: PASS.
 - [x] Vercel Preview: READY.
 - [x] Owner approved final v0.5 for progression and external review.
-- [ ] Merge PR #5 to `main`.
-- [ ] Prepare the short/public production URL for electrician review.
+- [x] PR #5 merged to `main`.
+- [ ] Prepare and verify the short/public production URL for electrician review.
 - [ ] Structured remote-electrician review before proceeding into 3D/classroom work.
+
+
+## v0.5 merge result
+
+PR #5 was merged into `main`.
+
+Main merge commit: `cb888dc6063d81a023fe0731ca01e567887e2609`.
+
+Do not start v0.6 yet. The next gate is:
+1. verify the public production URL;
+2. send the v0.5 test plan to the electrician;
+3. collect and review the electrician report.
