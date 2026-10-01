@@ -73,4 +73,9 @@ No AI is integrated. The complete useful product must work without AI through v1
 
 ## v0.5 Part 2A validation
 
-Implementation pushed with dedicated tests. CI/Vercel certification pending final run.
+Implementation pushed with dedicated tests.
+
+- GitHub Actions Node 20: PASS
+- GitHub Actions Node 22: PASS
+- Vercel Preview: READY
+- Next gate: owner GO for Part 2B.
