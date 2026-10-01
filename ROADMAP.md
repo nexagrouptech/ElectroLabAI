@@ -82,7 +82,7 @@ Done when the editor can grow by registering components without rewriting the wh
 
 ## v0.5 — Validation électrique & simulation sans IA
 
-Status: **functional scope complete — deterministic lamp/domestic/motor/contacteur/relay/transformer-secondary supported cases implemented; awaiting owner usability certification and merge**.
+Status: **internally certified and merged to `main`; awaiting structured electrician review before v0.6**.
 
 Goal: strengthen the deterministic non-AI product before 3D and classroom work.
 
