@@ -354,9 +354,9 @@ test("new tertiary components inherit stable ids, terminals and defaults", () =>
   assert.equal(transformer.properties.secondaryVoltageV, 24);
 });
 
-test("validator blocks false certification for newly cataloged components", () => {
+test("validator blocks false certification for tertiary components still pending full rules", () => {
   const project = validLampProject();
-  addComponent(project, "motor", { id: "motor-extra" });
+  addComponent(project, "relay", { id: "relay-extra" });
   const result = validateProject(project);
   assert.equal(result.valid, false);
   assert.ok(result.errors.some((error) => error.code === "VALIDATION_PENDING_FOR_COMPONENT"));
@@ -438,17 +438,21 @@ test("rejects an incomplete transformer secondary pair", () => {
   assert.ok(result.errors.some((error) => error.code === "OPEN_TRANSFORMER_SECONDARY"));
 });
 
-test("checks motor properties and requires L N PE when wiring has started", () => {
+test("checks motor properties and rejects incomplete unsupported wiring", () => {
   const project = createProject();
   const source = addComponent(project, "source", { id: "source-motor" });
-  const motor = addComponent(project, "motor", { id: "motor" });
+  const motor = addComponent(project, "motor", {
+    id: "motor",
+    properties: { ratedCurrentA: 4.2 }
+  });
 
   connect(project, { componentId: source.id, terminalId: "L" }, { componentId: motor.id, terminalId: "L" }, { id: "m1" });
   connect(project, { componentId: source.id, terminalId: "N" }, { componentId: motor.id, terminalId: "N" }, { id: "m2" });
 
   const result = validateProject(project);
   assert.ok(result.errors.some((error) => error.code === "INCOMPLETE_MOTOR_TERMINALS"));
-  assert.ok(result.errors.some((error) => error.code === "VALIDATION_PENDING_FOR_COMPONENT"));
+  assert.ok(result.errors.some((error) => error.code === "OPEN_MOTOR_POWER_PATH"));
+  assert.equal(result.errors.some((error) => error.code === "VALIDATION_PENDING_FOR_COMPONENT"), false);
 });
 
 test("does not fabricate motor current without power factor and efficiency modeling", () => {
