@@ -130,7 +130,7 @@ Implementation pushed with dedicated tests.
 - [x] GitHub Actions Node 20: PASS.
 - [x] GitHub Actions Node 22: PASS.
 - [x] Vercel Preview: READY.
-- [ ] Owner usability check on final v0.5 Preview.
+- [x] Owner approved final v0.5 for progression and external review.
 - [ ] Merge PR #5 to `main`.
 - [ ] Prepare the short/public production URL for electrician review.
 - [ ] Structured remote-electrician review before proceeding into 3D/classroom work.
