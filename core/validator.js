@@ -439,19 +439,22 @@ function validateRelayTopology(project, source, checks, errors, warnings) {
       hasTerminalConnection(project, ref(relay, "NO"), ref(lamp, "L"))
     );
 
-    const matchingBreaker = matchingLamp
-      ? breakers.find(
-          (breaker) =>
-            hasTerminalConnection(project, ref(source, "L"), ref(breaker, "L_IN")) &&
-            hasTerminalConnection(project, ref(breaker, "L_OUT"), ref(relay, "COM"))
+    const matchingBreaker =
+      source && matchingLamp
+        ? breakers.find(
+            (breaker) =>
+              hasTerminalConnection(project, ref(source, "L"), ref(breaker, "L_IN")) &&
+              hasTerminalConnection(project, ref(breaker, "L_OUT"), ref(relay, "COM"))
+          )
+        : null;
+
+    const matchingSwitch = source
+      ? switches.find(
+          (switchComponent) =>
+            hasTerminalConnection(project, ref(source, "L"), ref(switchComponent, "L_IN")) &&
+            hasTerminalConnection(project, ref(switchComponent, "L_OUT"), ref(relay, "A1"))
         )
       : null;
-
-    const matchingSwitch = switches.find(
-      (switchComponent) =>
-        hasTerminalConnection(project, ref(source, "L"), ref(switchComponent, "L_IN")) &&
-        hasTerminalConnection(project, ref(switchComponent, "L_OUT"), ref(relay, "A1"))
-    );
 
     const coilNeutralOk = Boolean(
       source && hasTerminalConnection(project, ref(source, "N"), ref(relay, "A2"))
