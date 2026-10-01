@@ -9,6 +9,7 @@ import {
   updateComponent
 } from "../core/project.js";
 import { validateProject } from "../core/validator.js";
+import { calculateProject } from "../core/simulator.js";
 import {
   COMPONENT_CATALOG,
   getComponentDefinition,
@@ -59,7 +60,7 @@ test("creates the v0.2 supported components", () => {
     "fuse",
     "rcd"
   ]);
-  assert.equal(project.version, "0.4.0");
+  assert.equal(project.version, "0.5.0");
 });
 
 test("defines domestic terminals and default protection properties", () => {
@@ -130,7 +131,7 @@ test("round-trips saved projects without losing data", () => {
   assert.equal(restored.components.length, 4);
   assert.equal(restored.wires.length, 4);
   assert.equal(restored.components.find((item) => item.id === "breaker").properties.ratingA, 16);
-  assert.equal(restored.version, "0.4.0");
+  assert.equal(restored.version, "0.5.0");
 });
 
 
@@ -196,7 +197,7 @@ test("exposes reusable predefined exercises", () => {
 
 test("creates an exercise-bound project", () => {
   const project = createExerciseProject("lamp-basic");
-  assert.equal(project.version, "0.4.0");
+  assert.equal(project.version, "0.5.0");
   assert.equal(project.exerciseId, "lamp-basic");
 });
 
@@ -329,4 +330,43 @@ test("validator blocks false certification for newly cataloged components", () =
   const result = validateProject(project);
   assert.equal(result.valid, false);
   assert.ok(result.errors.some((error) => error.code === "VALIDATION_PENDING_FOR_COMPONENT"));
+});
+
+
+test("calculates deterministic lamp current from known power and source voltage", () => {
+  const project = validLampProject();
+  const result = calculateProject(project);
+  assert.equal(result.voltageV, 230);
+  assert.equal(result.totalKnownPowerW, 60);
+  assert.equal(result.totalEstimatedCurrentA, 0.261);
+  assert.equal(result.loads[0].estimatedCurrentA, 0.261);
+});
+
+test("checks the exact lamp protection path against known load current", () => {
+  const project = validLampProject();
+  const result = calculateProject(project);
+  assert.equal(result.protectionChecks.length, 1);
+  assert.equal(result.protectionChecks[0].adequateForKnownLoad, true);
+  assert.equal(result.protectionChecks[0].ratingA, 16);
+});
+
+test("warns when a known lamp load exceeds the upstream breaker rating", () => {
+  const project = validLampProject();
+  updateComponent(project, "lamp", { properties: { powerW: 5000 } });
+  updateComponent(project, "breaker", { properties: { ratingA: 10 } });
+
+  const validation = validateProject(project);
+  assert.equal(validation.valid, true);
+  assert.ok(validation.warnings.some((warning) => warning.code === "PROTECTION_BELOW_ESTIMATED_LOAD"));
+
+  const calculations = calculateProject(project);
+  assert.equal(calculations.protectionChecks[0].adequateForKnownLoad, false);
+});
+
+test("does not invent socket consumption without a declared load", () => {
+  const project = validSocketProject("breaker");
+  const result = calculateProject(project);
+  assert.equal(result.totalKnownPowerW, 0);
+  assert.equal(result.totalEstimatedCurrentA, null);
+  assert.ok(result.notes.some((note) => /prises/.test(note)));
 });
