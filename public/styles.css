@@ -243,3 +243,19 @@ footer {
   color: var(--muted);
   font-size: 12px;
 }
+
+
+.calculation-panel {
+  grid-column: 1 / -1;
+  border-top: 1px solid var(--line);
+  padding-top: 12px;
+  display: grid;
+  gap: 6px;
+}
+.calculation-panel[hidden] { display: none; }
+.calculation-panel strong { color: var(--text) !important; }
+.calculation-panel ul {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 13px;
+}
