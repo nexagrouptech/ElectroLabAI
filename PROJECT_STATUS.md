@@ -4,81 +4,48 @@
 
 **v0.5 — Validation électrique & simulation sans IA**
 
-### Part 1 — Structured catalog + searchable dynamic palette
+### Part 1 — Deterministic calculation summary
 
 Implemented:
 
-- new `core/catalog.js` is the structured source of truth for component definitions;
-- each component has a stable `catalogId`, type, label, symbol, category, tags, terminals and default properties;
-- current residential catalog contains Source, Disjoncteur, Interrupteur, Lampe, Prise, Fusible and Différentiel;
-- project model moved to `0.4.0`;
-- new components persist their stable `catalogId`;
-- older saved projects are normalized with the matching catalog id on reload;
-- component palette is no longer hard-coded in HTML;
-- palette is generated dynamically from the catalog;
-- text search works across labels, ids and tags;
-- category filter supports Alimentation, Protection, Commande and Récepteurs;
-- exercise restrictions still disable components that are not allowed;
-- automated tests cover catalog ids, search, category filtering and save normalization.
+- project model version moved to `0.5.0`;
+- new `core/simulator.js` performs deterministic calculations only from known project values;
+- supported lamp calculations use declared power and source voltage to estimate current;
+- exact supported lamp topology links the upstream breaker to the calculated load;
+- validator warns when an upstream breaker rating is below the known estimated lamp current;
+- socket consumption is deliberately **not invented** when no downstream load is declared;
+- newly cataloged tertiary components remain blocked from false validation until their own electrical rules exist;
+- validation UI now displays source voltage, known power, estimated current, supported protection checks and calculation limitations;
+- calculations remain fully non-AI and reproducible.
 
-### Part 2 — Catalog expansion + configurable characteristics
+### Part 2 — Expanded deterministic component rules
 
-Implemented:
+Next after owner GO:
 
-- added first tertiary components: **Relais**, **Contacteur**, **Transformateur** and **Moteur monophasé**;
-- each new component has a stable catalog id and stable terminal definitions;
-- all catalog components now expose property metadata through `propertySchema`;
-- inspector fields are generated from catalog metadata instead of hard-coded property names;
-- select/number inputs, units, minimums and options come from the catalog;
-- search/tags/categories automatically include the new components;
-- validator explicitly blocks certification of newly cataloged components whose electrical rules are not yet implemented, preventing false “Circuit valide” results;
-- automated tests cover new components, terminal stability, defaults, property metadata and validation-pending behavior.
+- begin electrical rules for selected tertiary components;
+- add supported transformer/motor/relay/contacteur validation incrementally;
+- add stronger topology/protection checks without pretending unsupported rules are complete;
+- prepare the non-AI baseline for expert electrician review.
 
 ## Certified foundations
 
 - [x] v0.1 — Circuit Lampe merged to `main`.
 - [x] v0.2 — Installation domestique merged to `main`.
 - [x] v0.3 — Mini laboratoire pédagogique merged to `main`.
+- [x] v0.4 — Bibliothèque électrique merged to `main`.
 - [ ] v0.1 tag remains pending.
 
 ## Current branch
 
-`main`
+`feature/v0.5-validation-simulation`
 
-## Validation
+## Validation gate
 
-- [x] GitHub Actions Node 20 passed.
-- [x] GitHub Actions Node 22 passed.
-- [x] Vercel Preview deployment succeeded.
-- [x] Owner GO for Part 2.
+- [ ] GitHub Actions Node 20.
+- [ ] GitHub Actions Node 22.
+- [ ] Vercel Preview.
+- [ ] Owner GO for Part 2.
 
-## Deployment
+## AI policy
 
-GitHub → Vercel automatic previews remain active. Local port remains 4174.
-
-## AI policy — owner decision 2026-10-01
-
-ElectroLab must be built as a complete useful product without AI first.
-
-- No AI model, AI API, prompt layer or natural-language circuit generation during the current build.
-- The deterministic electrical engine remains the source of truth.
-- AI is optional only after a complete and validated non-AI v1.0.
-
-
-## v0.4 certification state
-
-- [x] Part 1 — structured searchable catalog.
-- [x] Part 2 — initial tertiary expansion and metadata-driven characteristics.
-- [x] GitHub Actions Node 20 passing on the implementation.
-- [x] GitHub Actions Node 22 passing on the implementation.
-- [x] Vercel Preview deployment succeeds.
-- [x] Owner approved v0.4 for progression.
-
-
-## v0.4 merge result
-
-PR #4 was merged into `main`.
-
-Main merge commit: `6bb338c1052cb3cf6e96f6357709925800480292`.
-
-Next implementation target: **v0.5 — Validation électrique & simulation sans IA**.
+No AI is integrated. The complete useful product must work without AI through v1.0.
