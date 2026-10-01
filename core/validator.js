@@ -35,6 +35,13 @@ function allOf(project, type) {
   return project.components.filter((item) => item.type === type);
 }
 
+function terminalConnected(project, component, terminalId) {
+  const key = endpointKey(ref(component, terminalId));
+  return project.wires.some(
+    (wire) => endpointKey(wire.from) === key || endpointKey(wire.to) === key
+  );
+}
+
 function addPresenceCheck(checks, errors, id, component, label, errorCode) {
   const ok = Boolean(component);
   checks.push({ id, ok, label: `Présence: ${label}` });
@@ -89,6 +96,145 @@ function validateProtectionProperties(project, checks, errors) {
       errors.push({
         code: "INVALID_RCD_SENSITIVITY",
         message: "La sensibilité du différentiel doit être une valeur positive."
+      });
+    }
+  }
+}
+
+function validateTertiaryProperties(project, source, checks, errors, warnings) {
+  for (const transformer of allOf(project, "transformer")) {
+    const primaryVoltageV = Number(transformer.properties.primaryVoltageV);
+    const secondaryVoltageV = Number(transformer.properties.secondaryVoltageV);
+    const ratedPowerVA = Number(transformer.properties.ratedPowerVA);
+
+    const primaryOk = Number.isFinite(primaryVoltageV) && primaryVoltageV > 0;
+    const secondaryOk = Number.isFinite(secondaryVoltageV) && secondaryVoltageV > 0;
+    const powerOk = Number.isFinite(ratedPowerVA) && ratedPowerVA > 0;
+
+    checks.push({ id: `transformer-primary-${transformer.id}`, ok: primaryOk, label: `${transformer.name}: tension primaire positive` });
+    checks.push({ id: `transformer-secondary-${transformer.id}`, ok: secondaryOk, label: `${transformer.name}: tension secondaire positive` });
+    checks.push({ id: `transformer-power-${transformer.id}`, ok: powerOk, label: `${transformer.name}: puissance nominale positive` });
+
+    if (!primaryOk || !secondaryOk || !powerOk) {
+      errors.push({
+        code: "INVALID_TRANSFORMER_PROPERTIES",
+        message: `${transformer.name}: renseigne des tensions primaire/secondaire et une puissance nominale strictement positives.`
+      });
+    }
+
+    const primaryP1Connected = terminalConnected(project, transformer, "P1");
+    const primaryP2Connected = terminalConnected(project, transformer, "P2");
+    const primaryAny = primaryP1Connected || primaryP2Connected;
+
+    if (primaryAny && source) {
+      const primaryComplete =
+        hasTerminalConnection(project, ref(source, "L"), ref(transformer, "P1")) &&
+        hasTerminalConnection(project, ref(source, "N"), ref(transformer, "P2"));
+
+      checks.push({
+        id: `transformer-primary-path-${transformer.id}`,
+        ok: primaryComplete,
+        label: `${transformer.name}: primaire L/N correctement raccordé`
+      });
+
+      if (!primaryComplete) {
+        errors.push({
+          code: "OPEN_TRANSFORMER_PRIMARY",
+          message: `${transformer.name}: raccorde L source → P1 et N source → P2 pour le primaire pris en charge.`
+        });
+      } else if (primaryOk) {
+        const sourceVoltageV = Number(source.properties.voltageV);
+        const voltageMatches = Number.isFinite(sourceVoltageV) && sourceVoltageV === primaryVoltageV;
+        checks.push({
+          id: `transformer-primary-voltage-${transformer.id}`,
+          ok: voltageMatches,
+          label: `${transformer.name}: tension source compatible avec le primaire`
+        });
+        if (!voltageMatches) {
+          errors.push({
+            code: "TRANSFORMER_PRIMARY_VOLTAGE_MISMATCH",
+            message: `${transformer.name}: la source est à ${sourceVoltageV} V mais le primaire est déclaré à ${primaryVoltageV} V.`
+          });
+        }
+      }
+    }
+
+    const secondaryS1Connected = terminalConnected(project, transformer, "S1");
+    const secondaryS2Connected = terminalConnected(project, transformer, "S2");
+    const secondaryAny = secondaryS1Connected || secondaryS2Connected;
+    if (secondaryAny && !(secondaryS1Connected && secondaryS2Connected)) {
+      errors.push({
+        code: "OPEN_TRANSFORMER_SECONDARY",
+        message: `${transformer.name}: le secondaire doit utiliser S1 et S2 ensemble dans le modèle pris en charge.`
+      });
+    } else if (!secondaryAny) {
+      warnings.push({
+        code: "TRANSFORMER_SECONDARY_UNLOADED",
+        message: `${transformer.name}: secondaire non raccordé; seuls les calculs nominaux sont disponibles.`
+      });
+    }
+  }
+
+  for (const motor of allOf(project, "motor")) {
+    const voltageV = Number(motor.properties.voltageV);
+    const powerW = Number(motor.properties.powerW);
+    const voltageOk = Number.isFinite(voltageV) && voltageV > 0;
+    const powerOk = Number.isFinite(powerW) && powerW > 0;
+
+    checks.push({ id: `motor-voltage-${motor.id}`, ok: voltageOk, label: `${motor.name}: tension positive` });
+    checks.push({ id: `motor-power-${motor.id}`, ok: powerOk, label: `${motor.name}: puissance positive` });
+
+    if (!voltageOk || !powerOk) {
+      errors.push({
+        code: "INVALID_MOTOR_PROPERTIES",
+        message: `${motor.name}: la tension et la puissance doivent être strictement positives.`
+      });
+    }
+
+    const lConnected = terminalConnected(project, motor, "L");
+    const nConnected = terminalConnected(project, motor, "N");
+    const peConnected = terminalConnected(project, motor, "PE");
+    const anyConnected = lConnected || nConnected || peConnected;
+
+    if (anyConnected) {
+      checks.push({ id: `motor-l-${motor.id}`, ok: lConnected, label: `${motor.name}: borne L raccordée` });
+      checks.push({ id: `motor-n-${motor.id}`, ok: nConnected, label: `${motor.name}: borne N raccordée` });
+      checks.push({ id: `motor-pe-${motor.id}`, ok: peConnected, label: `${motor.name}: borne PE raccordée` });
+
+      if (!lConnected || !nConnected || !peConnected) {
+        errors.push({
+          code: "INCOMPLETE_MOTOR_TERMINALS",
+          message: `${motor.name}: le modèle monophasé requiert L, N et PE raccordés.`
+        });
+      }
+    }
+  }
+
+  for (const relay of allOf(project, "relay")) {
+    const coilVoltageV = Number(relay.properties.coilVoltageV);
+    const ok = Number.isFinite(coilVoltageV) && coilVoltageV > 0;
+    checks.push({ id: `relay-coil-${relay.id}`, ok, label: `${relay.name}: tension bobine positive` });
+    if (!ok) {
+      errors.push({
+        code: "INVALID_RELAY_COIL_VOLTAGE",
+        message: `${relay.name}: la tension de bobine doit être strictement positive.`
+      });
+    }
+  }
+
+  for (const contactor of allOf(project, "contactor")) {
+    const coilVoltageV = Number(contactor.properties.coilVoltageV);
+    const ratingA = Number(contactor.properties.ratingA);
+    const coilOk = Number.isFinite(coilVoltageV) && coilVoltageV > 0;
+    const ratingOk = Number.isFinite(ratingA) && ratingA > 0;
+
+    checks.push({ id: `contactor-coil-${contactor.id}`, ok: coilOk, label: `${contactor.name}: tension bobine positive` });
+    checks.push({ id: `contactor-rating-${contactor.id}`, ok: ratingOk, label: `${contactor.name}: calibre positif` });
+
+    if (!coilOk || !ratingOk) {
+      errors.push({
+        code: "INVALID_CONTACTOR_PROPERTIES",
+        message: `${contactor.name}: tension bobine et calibre doivent être strictement positifs.`
       });
     }
   }
@@ -291,6 +437,7 @@ export function validateProject(project) {
   }
 
   validateProtectionProperties(project, checks, errors);
+  validateTertiaryProperties(project, source, checks, errors, warnings);
   validateLampCircuit(project, source, checks, errors);
   validateSocketCircuit(project, source, checks, errors, warnings);
 
