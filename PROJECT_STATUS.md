@@ -4,81 +4,133 @@
 
 **v0.5 — Validation électrique & simulation sans IA**
 
-### Part 1 — Structured catalog + searchable dynamic palette
+### Part 1 — Deterministic calculation summary
 
 Implemented:
 
-- new `core/catalog.js` is the structured source of truth for component definitions;
-- each component has a stable `catalogId`, type, label, symbol, category, tags, terminals and default properties;
-- current residential catalog contains Source, Disjoncteur, Interrupteur, Lampe, Prise, Fusible and Différentiel;
-- project model moved to `0.4.0`;
-- new components persist their stable `catalogId`;
-- older saved projects are normalized with the matching catalog id on reload;
-- component palette is no longer hard-coded in HTML;
-- palette is generated dynamically from the catalog;
-- text search works across labels, ids and tags;
-- category filter supports Alimentation, Protection, Commande and Récepteurs;
-- exercise restrictions still disable components that are not allowed;
-- automated tests cover catalog ids, search, category filtering and save normalization.
+- project model version moved to `0.5.0`;
+- new `core/simulator.js` performs deterministic calculations only from known project values;
+- supported lamp calculations use declared power and source voltage to estimate current;
+- exact supported lamp topology links the upstream breaker to the calculated load;
+- validator warns when an upstream breaker rating is below the known estimated lamp current;
+- socket consumption is deliberately **not invented** when no downstream load is declared;
+- newly cataloged tertiary components remain blocked from false validation until their own electrical rules exist;
+- validation UI now displays source voltage, known power, estimated current, supported protection checks and calculation limitations;
+- calculations remain fully non-AI and reproducible.
 
-### Part 2 — Catalog expansion + configurable characteristics
+### Part 2 — Expanded deterministic component rules
+
+#### Part 2A — Conservative tertiary rules
 
 Implemented:
 
-- added first tertiary components: **Relais**, **Contacteur**, **Transformateur** and **Moteur monophasé**;
-- each new component has a stable catalog id and stable terminal definitions;
-- all catalog components now expose property metadata through `propertySchema`;
-- inspector fields are generated from catalog metadata instead of hard-coded property names;
-- select/number inputs, units, minimums and options come from the catalog;
-- search/tags/categories automatically include the new components;
-- validator explicitly blocks certification of newly cataloged components whose electrical rules are not yet implemented, preventing false “Circuit valide” results;
-- automated tests cover new components, terminal stability, defaults, property metadata and validation-pending behavior.
+- Transformateur: declared primary/secondary voltages and VA must be positive;
+- when transformer primary wiring starts, the supported topology expects source L → P1 and source N → P2;
+- connected transformer primary voltage must match the declared source voltage;
+- transformer secondary wiring cannot be left half-connected;
+- deterministic transformer nominal calculations expose voltage ratio plus S/V primary and secondary rated currents;
+- the UI clearly states that transformer losses/efficiency are not modeled;
+- Moteur monophasé: declared voltage and power must be positive;
+- once motor wiring starts, L, N and PE must all be connected;
+- motor current is deliberately **not calculated** because power factor, efficiency and starting current are not yet modeled;
+- Relais and Contacteur: declared coil voltage / contactor rating receive deterministic positive-value checks;
+- all four tertiary types still keep the explicit `VALIDATION_PENDING_FOR_COMPONENT` blocker until their complete topology/control/protection rules are finished, preventing false certification.
+
+#### Part 2B1 — Supported motor + contactor topology
+
+Implemented:
+
+- motor now requires a user-entered **nameplate rated current** instead of an invented current;
+- supported power path: Source L → Disjoncteur → Contacteur L1/T1 → Moteur L;
+- supported control path: Source L → Interrupteur → Contacteur A1, with Source N → A2;
+- motor neutral and PE are required;
+- motor nominal voltage must match source voltage;
+- contactor coil voltage must match source voltage;
+- contactor rating must be at least the motor nameplate current;
+- breaker rating must not be below the motor nameplate current;
+- motor/contacteur lose the generic pending-validation blocker only inside this explicitly supported rule set;
+- ElectroLab still warns that starting current, thermal coordination, power factor and efficiency are not yet modeled;
+- orphan contactors are rejected instead of silently accepted.
+
+#### Part 2B2 — Relay + transformer-secondary supported topology
+
+Implemented:
+
+- first supported **Relais NO + Lampe** topology:
+  - Source L → Disjoncteur → COM relais;
+  - NO relais → L lampe;
+  - Source N → N lampe;
+  - Source L → Interrupteur → A1 relais;
+  - Source N → A2 relais;
+- relay coil voltage must match source voltage;
+- relay NC use is explicitly rejected in this first supported topology;
+- relay contact behavior is validated statically and the UI documents that dynamic coil/contact state is not yet simulated;
+- first supported **Transformateur secondaire + Lampe** topology:
+  - primary Source L/N → P1/P2;
+  - secondary S1 → Disjoncteur → Interrupteur → L lampe;
+  - S2 → N lampe;
+- secondary lamp current is calculated from the declared secondary voltage, not from the primary/source voltage;
+- the secondary breaker is checked against the estimated supported lamp current;
+- global current is not incorrectly aggregated across different voltage domains;
+- transformer overload comparison W vs VA is emitted only as an explicit warning because full power-factor modeling is not present;
+- relay and transformer generic pending-validation blockers were removed only after these supported topologies were covered by tests.
+
+Status: **v0.5 functional scope complete; awaiting owner usability certification before merge.**
 
 ## Certified foundations
 
 - [x] v0.1 — Circuit Lampe merged to `main`.
 - [x] v0.2 — Installation domestique merged to `main`.
 - [x] v0.3 — Mini laboratoire pédagogique merged to `main`.
+- [x] v0.4 — Bibliothèque électrique merged to `main`.
 - [ ] v0.1 tag remains pending.
 
 ## Current branch
 
-`main`
+`feature/v0.5-validation-simulation`
 
-## Validation
+## Validation gate
 
-- [x] GitHub Actions Node 20 passed.
-- [x] GitHub Actions Node 22 passed.
-- [x] Vercel Preview deployment succeeded.
-- [x] Owner GO for Part 2.
+- [x] GitHub Actions Node 20.
+- [x] GitHub Actions Node 22.
+- [x] Vercel Preview.
+- [x] Owner GO for Part 2A.
+- [x] Owner GO for Part 2B1.
+- [x] Owner GO for Part 2B2.
 
-## Deployment
+## AI policy
 
-GitHub → Vercel automatic previews remain active. Local port remains 4174.
-
-## AI policy — owner decision 2026-10-01
-
-ElectroLab must be built as a complete useful product without AI first.
-
-- No AI model, AI API, prompt layer or natural-language circuit generation during the current build.
-- The deterministic electrical engine remains the source of truth.
-- AI is optional only after a complete and validated non-AI v1.0.
+No AI is integrated. The complete useful product must work without AI through v1.0.
 
 
-## v0.4 certification state
+## v0.5 Part 2A validation
 
-- [x] Part 1 — structured searchable catalog.
-- [x] Part 2 — initial tertiary expansion and metadata-driven characteristics.
-- [x] GitHub Actions Node 20 passing on the implementation.
-- [x] GitHub Actions Node 22 passing on the implementation.
-- [x] Vercel Preview deployment succeeds.
-- [x] Owner approved v0.4 for progression.
+Implementation pushed with dedicated tests.
+
+- GitHub Actions Node 20: PASS
+- GitHub Actions Node 22: PASS
+- Vercel Preview: READY
+- Next gate: owner GO for Part 2B.
 
 
-## v0.4 merge result
+## v0.5 Part 2B1 validation
 
-PR #4 was merged into `main`.
+- GitHub Actions Node 20: PASS
+- GitHub Actions Node 22: PASS
+- Vercel Preview: READY
+- Next gate: owner GO for Part 2B2.
 
-Main merge commit: `6bb338c1052cb3cf6e96f6357709925800480292`.
 
-Next implementation target: **v0.5 — Validation électrique & simulation sans IA**.
+## v0.5 final certification state
+
+- [x] Part 1 — deterministic calculation summary.
+- [x] Part 2A — conservative tertiary rules.
+- [x] Part 2B1 — supported motor/contacteur topology.
+- [x] Part 2B2 — supported relay and transformer-secondary topologies.
+- [x] GitHub Actions Node 20: PASS.
+- [x] GitHub Actions Node 22: PASS.
+- [x] Vercel Preview: READY.
+- [x] Owner approved final v0.5 for progression and external review.
+- [ ] Merge PR #5 to `main`.
+- [ ] Prepare the short/public production URL for electrician review.
+- [ ] Structured remote-electrician review before proceeding into 3D/classroom work.

@@ -11,7 +11,7 @@ export function createProject({ id = makeId("project"), name = "Mini laboratoire
   return {
     id,
     name,
-    version: "0.4.0",
+    version: "0.5.0",
     exerciseId,
     exerciseProgress: {
       attempts: 0,
@@ -128,7 +128,7 @@ export function deserializeProject(json) {
   }
   return {
     ...parsed,
-    version: parsed.version || "0.4.0",
+    version: parsed.version || "0.5.0",
     exerciseId: parsed.exerciseId || null,
     exerciseProgress: {
       attempts: Number(parsed.exerciseProgress?.attempts || 0),
