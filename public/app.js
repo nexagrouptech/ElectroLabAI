@@ -404,7 +404,7 @@ function renderCalculations(calculations) {
 
   for (const load of calculations.loads) {
     addCalculationLine(
-      `${load.name}: ${load.powerW} W → ${load.estimatedCurrentA} A estimé`
+      `${load.name}: ${load.powerW} W @ ${load.supplyVoltageV} V → ${load.estimatedCurrentA} A estimé (${load.supplyLabel})`
     );
   }
 
