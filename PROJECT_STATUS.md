@@ -36,15 +36,30 @@ Implemented:
 - Relais and Contacteur: declared coil voltage / contactor rating receive deterministic positive-value checks;
 - all four tertiary types still keep the explicit `VALIDATION_PENDING_FOR_COMPONENT` blocker until their complete topology/control/protection rules are finished, preventing false certification.
 
-#### Part 2B — Remaining tertiary topology/control rules
+#### Part 2B1 — Supported motor + contactor topology
+
+Implemented:
+
+- motor now requires a user-entered **nameplate rated current** instead of an invented current;
+- supported power path: Source L → Disjoncteur → Contacteur L1/T1 → Moteur L;
+- supported control path: Source L → Interrupteur → Contacteur A1, with Source N → A2;
+- motor neutral and PE are required;
+- motor nominal voltage must match source voltage;
+- contactor coil voltage must match source voltage;
+- contactor rating must be at least the motor nameplate current;
+- breaker rating must not be below the motor nameplate current;
+- motor/contacteur lose the generic pending-validation blocker only inside this explicitly supported rule set;
+- ElectroLab still warns that starting current, thermal coordination, power factor and efficiency are not yet modeled;
+- orphan contactors are rejected instead of silently accepted.
+
+#### Part 2B2 — Relay + transformer-secondary supported topology
 
 Next after owner GO:
 
-- complete supported relay coil/contact behavior;
-- complete supported contactor control/power behavior;
-- add a supported motor protection/control topology;
-- decide the first supported transformer-secondary load topology;
-- remove `VALIDATION_PENDING_FOR_COMPONENT` only per component after its complete supported rule set is covered by tests.
+- complete one supported relay coil/contact behavior;
+- define the first transformer-secondary protected-load topology;
+- add deterministic secondary-load calculations where values are known;
+- remove `VALIDATION_PENDING_FOR_COMPONENT` for relay/transformer only after those supported topologies are covered by tests.
 
 ## Certified foundations
 
@@ -64,7 +79,8 @@ Next after owner GO:
 - [x] GitHub Actions Node 22.
 - [x] Vercel Preview.
 - [x] Owner GO for Part 2A.
-- [ ] Owner GO for Part 2B.
+- [x] Owner GO for Part 2B1.
+- [ ] Owner GO for Part 2B2.
 
 ## AI policy
 
@@ -79,3 +95,11 @@ Implementation pushed with dedicated tests.
 - GitHub Actions Node 22: PASS
 - Vercel Preview: READY
 - Next gate: owner GO for Part 2B.
+
+
+## v0.5 Part 2B1 validation
+
+- GitHub Actions Node 20: PASS
+- GitHub Actions Node 22: PASS
+- Vercel Preview: READY
+- Next gate: owner GO for Part 2B2.
