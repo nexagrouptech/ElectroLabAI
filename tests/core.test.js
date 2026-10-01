@@ -48,6 +48,36 @@ function validLampProject() {
   return project;
 }
 
+function validMotorContactorProject() {
+  const project = createProject({ id: "motor-project" });
+  const source = addComponent(project, "source", { id: "motor-source" });
+  const breaker = addComponent(project, "breaker", {
+    id: "motor-breaker",
+    properties: { ratingA: 16 }
+  });
+  const controlSwitch = addComponent(project, "switch", { id: "motor-switch" });
+  const contactor = addComponent(project, "contactor", {
+    id: "motor-contactor",
+    properties: { coilVoltageV: 230, ratingA: 25 }
+  });
+  const motor = addComponent(project, "motor", {
+    id: "motor",
+    properties: { voltageV: 230, powerW: 750, ratedCurrentA: 4.2 }
+  });
+
+  connect(project, { componentId: source.id, terminalId: "L" }, { componentId: breaker.id, terminalId: "L_IN" }, { id: "m1" });
+  connect(project, { componentId: breaker.id, terminalId: "L_OUT" }, { componentId: contactor.id, terminalId: "L1" }, { id: "m2" });
+  connect(project, { componentId: contactor.id, terminalId: "T1" }, { componentId: motor.id, terminalId: "L" }, { id: "m3" });
+
+  connect(project, { componentId: source.id, terminalId: "L" }, { componentId: controlSwitch.id, terminalId: "L_IN" }, { id: "m4" });
+  connect(project, { componentId: controlSwitch.id, terminalId: "L_OUT" }, { componentId: contactor.id, terminalId: "A1" }, { id: "m5" });
+  connect(project, { componentId: source.id, terminalId: "N" }, { componentId: contactor.id, terminalId: "A2" }, { id: "m6" });
+
+  connect(project, { componentId: source.id, terminalId: "N" }, { componentId: motor.id, terminalId: "N" }, { id: "m7" });
+  connect(project, { componentId: source.id, terminalId: "PE" }, { componentId: motor.id, terminalId: "PE" }, { id: "m8" });
+  return project;
+}
+
 test("creates the v0.2 supported components", () => {
   const project = createProject();
   for (const type of ["source", "breaker", "switch", "lamp", "socket", "fuse", "rcd"]) addComponent(project, type);
@@ -442,4 +472,67 @@ test("validates positive relay and contactor declared properties before topology
   assert.ok(result.errors.some((error) => error.code === "INVALID_CONTACTOR_PROPERTIES"));
   assert.equal(relay.properties.coilVoltageV, 0);
   assert.equal(contactor.properties.ratingA, 0);
+});
+
+
+test("validates the supported contactor motor topology", () => {
+  const project = validMotorContactorProject();
+  const result = validateProject(project);
+  assert.equal(result.valid, true);
+  assert.equal(result.errors.length, 0);
+  assert.ok(result.warnings.some((warning) => warning.code === "MOTOR_STARTING_AND_THERMAL_NOT_MODELED"));
+  assert.equal(result.errors.some((error) => error.code === "VALIDATION_PENDING_FOR_COMPONENT"), false);
+});
+
+test("requires motor nameplate current before motor topology validation", () => {
+  const project = validMotorContactorProject();
+  updateComponent(project, "motor", { properties: { ratedCurrentA: 0 } });
+  const result = validateProject(project);
+  assert.equal(result.valid, false);
+  assert.ok(result.errors.some((error) => error.code === "MISSING_MOTOR_RATED_CURRENT"));
+});
+
+test("rejects motor topology without PE", () => {
+  const project = validMotorContactorProject();
+  project.wires = project.wires.filter((wire) => wire.id !== "m8");
+  const result = validateProject(project);
+  assert.equal(result.valid, false);
+  assert.ok(result.errors.some((error) => error.code === "OPEN_MOTOR_PE"));
+});
+
+test("rejects contactor coil voltage mismatch", () => {
+  const project = validMotorContactorProject();
+  updateComponent(project, "motor-contactor", { properties: { coilVoltageV: 24 } });
+  const result = validateProject(project);
+  assert.equal(result.valid, false);
+  assert.ok(result.errors.some((error) => error.code === "CONTACTOR_COIL_VOLTAGE_MISMATCH"));
+});
+
+test("rejects contactor undersized for motor nameplate current", () => {
+  const project = validMotorContactorProject();
+  updateComponent(project, "motor", { properties: { ratedCurrentA: 30 } });
+  const result = validateProject(project);
+  assert.equal(result.valid, false);
+  assert.ok(result.errors.some((error) => error.code === "CONTACTOR_UNDERSIZED_FOR_MOTOR"));
+});
+
+test("rejects breaker below motor nameplate current", () => {
+  const project = validMotorContactorProject();
+  updateComponent(project, "motor", { properties: { ratedCurrentA: 12 } });
+  updateComponent(project, "motor-contactor", { properties: { ratingA: 25 } });
+  updateComponent(project, "motor-breaker", { properties: { ratingA: 10 } });
+  const result = validateProject(project);
+  assert.equal(result.valid, false);
+  assert.ok(result.errors.some((error) => error.code === "BREAKER_BELOW_MOTOR_RATED_CURRENT"));
+});
+
+test("rejects contactor outside the supported motor topology", () => {
+  const project = validLampProject();
+  addComponent(project, "contactor", {
+    id: "orphan-contactor",
+    properties: { coilVoltageV: 230, ratingA: 25 }
+  });
+  const result = validateProject(project);
+  assert.equal(result.valid, false);
+  assert.ok(result.errors.some((error) => error.code === "CONTACTOR_NOT_IN_SUPPORTED_MOTOR_TOPOLOGY"));
 });
