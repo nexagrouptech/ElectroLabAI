@@ -3,7 +3,7 @@ import { calculateProject } from "./simulator.js";
 
 const ALLOWED_BREAKER_RATINGS = [10, 16, 20, 32, 40];
 const ALLOWED_FUSE_RATINGS = [10, 16, 20, 32];
-const FULLY_VALIDATED_TYPES = new Set(["source", "breaker", "switch", "lamp", "socket", "fuse", "rcd", "contactor", "motor"]);
+const FULLY_VALIDATED_TYPES = new Set(["source", "breaker", "switch", "lamp", "socket", "fuse", "rcd", "relay", "contactor", "transformer", "motor"]);
 
 function endpointKey(ref) {
   return `${ref.componentId}::${ref.terminalId}`;
@@ -425,19 +425,244 @@ function validateMotorContactorTopology(project, source, checks, errors, warning
   }
 }
 
+function validateRelayTopology(project, source, checks, errors, warnings) {
+  const relays = allOf(project, "relay");
+  const lamps = allOf(project, "lamp");
+  const breakers = allOf(project, "breaker");
+  const switches = allOf(project, "switch");
+
+  for (const relay of relays) {
+    const coilVoltageV = Number(relay.properties.coilVoltageV);
+    const sourceVoltageV = Number(source?.properties?.voltageV);
+
+    const matchingLamp = lamps.find((lamp) =>
+      hasTerminalConnection(project, ref(relay, "NO"), ref(lamp, "L"))
+    );
+
+    const matchingBreaker = matchingLamp
+      ? breakers.find(
+          (breaker) =>
+            hasTerminalConnection(project, ref(source, "L"), ref(breaker, "L_IN")) &&
+            hasTerminalConnection(project, ref(breaker, "L_OUT"), ref(relay, "COM"))
+        )
+      : null;
+
+    const matchingSwitch = switches.find(
+      (switchComponent) =>
+        hasTerminalConnection(project, ref(source, "L"), ref(switchComponent, "L_IN")) &&
+        hasTerminalConnection(project, ref(switchComponent, "L_OUT"), ref(relay, "A1"))
+    );
+
+    const coilNeutralOk = Boolean(
+      source && hasTerminalConnection(project, ref(source, "N"), ref(relay, "A2"))
+    );
+    const lampNeutralOk = Boolean(
+      source &&
+      matchingLamp &&
+      hasTerminalConnection(project, ref(source, "N"), ref(matchingLamp, "N"))
+    );
+    const powerPathOk = Boolean(source && matchingLamp && matchingBreaker);
+    const controlPathOk = Boolean(source && matchingSwitch && coilNeutralOk);
+    const ncUnused = !terminalConnected(project, relay, "NC");
+    const coilVoltageMatches =
+      Number.isFinite(sourceVoltageV) &&
+      Number.isFinite(coilVoltageV) &&
+      sourceVoltageV === coilVoltageV;
+
+    checks.push({
+      id: `relay-power-path-${relay.id}`,
+      ok: powerPathOk,
+      label: `${relay.name}: source → disjoncteur → COM/NO → lampe`
+    });
+    checks.push({
+      id: `relay-control-path-${relay.id}`,
+      ok: controlPathOk,
+      label: `${relay.name}: source → interrupteur → bobine A1/A2`
+    });
+    checks.push({
+      id: `relay-lamp-neutral-${relay.id}`,
+      ok: lampNeutralOk,
+      label: `${relay.name}: neutre lampe raccordé`
+    });
+    checks.push({
+      id: `relay-coil-voltage-match-${relay.id}`,
+      ok: coilVoltageMatches,
+      label: `${relay.name}: tension bobine compatible source`
+    });
+    checks.push({
+      id: `relay-nc-unused-${relay.id}`,
+      ok: ncUnused,
+      label: `${relay.name}: borne NC inutilisée dans le schéma supporté`
+    });
+
+    if (!powerPathOk) {
+      errors.push({
+        code: "OPEN_RELAY_POWER_PATH",
+        message: `${relay.name}: le schéma supporté requiert L source → disjoncteur → COM relais, puis NO relais → L lampe.`
+      });
+    }
+    if (!controlPathOk) {
+      errors.push({
+        code: "OPEN_RELAY_CONTROL_PATH",
+        message: `${relay.name}: le schéma supporté requiert L source → interrupteur → A1 et N source → A2.`
+      });
+    }
+    if (!lampNeutralOk) {
+      errors.push({
+        code: "OPEN_RELAY_LAMP_NEUTRAL",
+        message: `${relay.name}: relie N source à N lampe.`
+      });
+    }
+    if (!coilVoltageMatches) {
+      errors.push({
+        code: "RELAY_COIL_VOLTAGE_MISMATCH",
+        message: `${relay.name}: bobine ${coilVoltageV} V incompatible avec la source ${sourceVoltageV} V.`
+      });
+    }
+    if (!ncUnused) {
+      errors.push({
+        code: "RELAY_NC_NOT_SUPPORTED",
+        message: `${relay.name}: la borne NC n’est pas encore prise en charge dans le premier schéma relais supporté.`
+      });
+    }
+
+    if (powerPathOk && controlPathOk && lampNeutralOk) {
+      warnings.push({
+        code: "RELAY_STATIC_CONTACT_MODEL",
+        message: `${relay.name}: le contact NO est validé comme topologie; l’état dynamique de la bobine/contact n’est pas encore simulé.`
+      });
+    }
+  }
+}
+
+function validateTransformerSecondaryTopology(project, source, checks, errors, warnings) {
+  const transformers = allOf(project, "transformer");
+  const lamps = allOf(project, "lamp");
+  const breakers = allOf(project, "breaker");
+  const switches = allOf(project, "switch");
+
+  for (const transformer of transformers) {
+    const secondaryAny =
+      terminalConnected(project, transformer, "S1") ||
+      terminalConnected(project, transformer, "S2");
+
+    if (!secondaryAny) continue;
+
+    const matchingLamp = lamps.find((lamp) =>
+      hasTerminalConnection(project, ref(transformer, "S2"), ref(lamp, "N"))
+    );
+
+    const matchingSwitch = matchingLamp
+      ? switches.find((switchComponent) =>
+          hasTerminalConnection(project, ref(switchComponent, "L_OUT"), ref(matchingLamp, "L"))
+        )
+      : null;
+
+    const matchingBreaker = matchingSwitch
+      ? breakers.find(
+          (breaker) =>
+            hasTerminalConnection(project, ref(transformer, "S1"), ref(breaker, "L_IN")) &&
+            hasTerminalConnection(project, ref(breaker, "L_OUT"), ref(matchingSwitch, "L_IN"))
+        )
+      : null;
+
+    const primaryOk = Boolean(
+      source &&
+      hasTerminalConnection(project, ref(source, "L"), ref(transformer, "P1")) &&
+      hasTerminalConnection(project, ref(source, "N"), ref(transformer, "P2"))
+    );
+    const secondaryLoadPathOk = Boolean(
+      matchingLamp && matchingSwitch && matchingBreaker
+    );
+
+    checks.push({
+      id: `transformer-supported-primary-${transformer.id}`,
+      ok: primaryOk,
+      label: `${transformer.name}: primaire alimenté par la source`
+    });
+    checks.push({
+      id: `transformer-secondary-load-${transformer.id}`,
+      ok: secondaryLoadPathOk,
+      label: `${transformer.name}: S1 → disjoncteur → interrupteur → lampe, retour S2`
+    });
+
+    if (!primaryOk) {
+      errors.push({
+        code: "TRANSFORMER_PRIMARY_REQUIRED_FOR_SECONDARY_LOAD",
+        message: `${transformer.name}: un secondaire chargé requiert le primaire L source → P1 et N source → P2.`
+      });
+    }
+    if (!secondaryLoadPathOk) {
+      errors.push({
+        code: "UNSUPPORTED_TRANSFORMER_SECONDARY_TOPOLOGY",
+        message: `${transformer.name}: le premier secondaire supporté est S1 → disjoncteur → interrupteur → L lampe et S2 → N lampe.`
+      });
+      continue;
+    }
+
+    const secondaryVoltageV = Number(transformer.properties.secondaryVoltageV);
+    const lampPowerW = Number(matchingLamp.properties.powerW);
+    const ratedPowerVA = Number(transformer.properties.ratedPowerVA);
+
+    if (
+      Number.isFinite(secondaryVoltageV) &&
+      secondaryVoltageV > 0 &&
+      Number.isFinite(lampPowerW) &&
+      lampPowerW > 0
+    ) {
+      const estimatedCurrentA = lampPowerW / secondaryVoltageV;
+      const breakerRatingA = Number(matchingBreaker.properties.ratingA);
+      const breakerOk =
+        Number.isFinite(breakerRatingA) && breakerRatingA >= estimatedCurrentA;
+
+      checks.push({
+        id: `transformer-secondary-breaker-${transformer.id}-${matchingLamp.id}`,
+        ok: breakerOk,
+        label: `${matchingBreaker.name}: calibre ≥ courant estimé au secondaire`
+      });
+
+      if (!breakerOk) {
+        errors.push({
+          code: "SECONDARY_BREAKER_BELOW_ESTIMATED_LOAD",
+          message: `${matchingBreaker.name}: calibre ${breakerRatingA} A inférieur au courant secondaire estimé ${estimatedCurrentA.toFixed(3)} A.`
+        });
+      }
+
+      if (Number.isFinite(ratedPowerVA) && ratedPowerVA > 0 && lampPowerW > ratedPowerVA) {
+        warnings.push({
+          code: "TRANSFORMER_LOAD_POWER_EXCEEDS_RATED_VA",
+          message: `${transformer.name}: puissance lampe ${lampPowerW} W supérieure à ${ratedPowerVA} VA; vérification complète W/VA et facteur de puissance non modélisée.`
+        });
+      }
+    }
+  }
+}
+
+function lampUsesSpecialTopology(project, lamp) {
+  const relayDriven = allOf(project, "relay").some((relay) =>
+    hasTerminalConnection(project, ref(relay, "NO"), ref(lamp, "L"))
+  );
+  const transformerReturn = allOf(project, "transformer").some((transformer) =>
+    hasTerminalConnection(project, ref(transformer, "S2"), ref(lamp, "N"))
+  );
+  return relayDriven || transformerReturn;
+}
+
 function validateLampCircuit(project, source, checks, errors) {
   const lamp = firstOf(project, "lamp");
   if (!lamp) return;
+
+  if (Number(lamp.properties.powerW) <= 0) {
+    errors.push({ code: "INVALID_LAMP_POWER", message: "La puissance de la lampe doit être positive." });
+  }
+
+  if (lampUsesSpecialTopology(project, lamp)) return;
 
   const breaker = firstOf(project, "breaker");
   const switchComponent = firstOf(project, "switch");
 
   addPresenceCheck(checks, errors, "lamp-breaker", breaker, "un disjoncteur pour la lampe", "MISSING_BREAKER");
   addPresenceCheck(checks, errors, "lamp-switch", switchComponent, "un interrupteur pour la lampe", "MISSING_SWITCH");
-
-  if (Number(lamp.properties.powerW) <= 0) {
-    errors.push({ code: "INVALID_LAMP_POWER", message: "La puissance de la lampe doit être positive." });
-  }
 
   if (!source || !breaker || !switchComponent) return;
 
@@ -624,6 +849,8 @@ export function validateProject(project) {
   validateProtectionProperties(project, checks, errors);
   validateTertiaryProperties(project, source, checks, errors, warnings);
   validateMotorContactorTopology(project, source, checks, errors, warnings);
+  validateRelayTopology(project, source, checks, errors, warnings);
+  validateTransformerSecondaryTopology(project, source, checks, errors, warnings);
   validateLampCircuit(project, source, checks, errors);
   validateSocketCircuit(project, source, checks, errors, warnings);
 
