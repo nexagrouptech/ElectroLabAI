@@ -54,12 +54,28 @@ Implemented:
 
 #### Part 2B2 — Relay + transformer-secondary supported topology
 
-Next after owner GO:
+Implemented:
 
-- complete one supported relay coil/contact behavior;
-- define the first transformer-secondary protected-load topology;
-- add deterministic secondary-load calculations where values are known;
-- remove `VALIDATION_PENDING_FOR_COMPONENT` for relay/transformer only after those supported topologies are covered by tests.
+- first supported **Relais NO + Lampe** topology:
+  - Source L → Disjoncteur → COM relais;
+  - NO relais → L lampe;
+  - Source N → N lampe;
+  - Source L → Interrupteur → A1 relais;
+  - Source N → A2 relais;
+- relay coil voltage must match source voltage;
+- relay NC use is explicitly rejected in this first supported topology;
+- relay contact behavior is validated statically and the UI documents that dynamic coil/contact state is not yet simulated;
+- first supported **Transformateur secondaire + Lampe** topology:
+  - primary Source L/N → P1/P2;
+  - secondary S1 → Disjoncteur → Interrupteur → L lampe;
+  - S2 → N lampe;
+- secondary lamp current is calculated from the declared secondary voltage, not from the primary/source voltage;
+- the secondary breaker is checked against the estimated supported lamp current;
+- global current is not incorrectly aggregated across different voltage domains;
+- transformer overload comparison W vs VA is emitted only as an explicit warning because full power-factor modeling is not present;
+- relay and transformer generic pending-validation blockers were removed only after these supported topologies were covered by tests.
+
+Status: **v0.5 functional scope complete; awaiting owner usability certification before merge.**
 
 ## Certified foundations
 
@@ -80,7 +96,7 @@ Next after owner GO:
 - [x] Vercel Preview.
 - [x] Owner GO for Part 2A.
 - [x] Owner GO for Part 2B1.
-- [ ] Owner GO for Part 2B2.
+- [x] Owner GO for Part 2B2.
 
 ## AI policy
 
@@ -103,3 +119,18 @@ Implementation pushed with dedicated tests.
 - GitHub Actions Node 22: PASS
 - Vercel Preview: READY
 - Next gate: owner GO for Part 2B2.
+
+
+## v0.5 final certification state
+
+- [x] Part 1 — deterministic calculation summary.
+- [x] Part 2A — conservative tertiary rules.
+- [x] Part 2B1 — supported motor/contacteur topology.
+- [x] Part 2B2 — supported relay and transformer-secondary topologies.
+- [x] GitHub Actions Node 20: PASS.
+- [x] GitHub Actions Node 22: PASS.
+- [x] Vercel Preview: READY.
+- [ ] Owner usability check on final v0.5 Preview.
+- [ ] Merge PR #5 to `main`.
+- [ ] Prepare the short/public production URL for electrician review.
+- [ ] Structured remote-electrician review before proceeding into 3D/classroom work.
