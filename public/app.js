@@ -414,6 +414,12 @@ function renderCalculations(calculations) {
     );
   }
 
+  for (const transformer of calculations.transformers || []) {
+    addCalculationLine(
+      `${transformer.name}: ${transformer.primaryVoltageV}→${transformer.secondaryVoltageV} V • ${transformer.ratedPowerVA} VA • I₁ nominal ${transformer.ratedPrimaryCurrentA} A • I₂ nominal ${transformer.ratedSecondaryCurrentA} A`
+    );
+  }
+
   for (const note of calculations.notes) addCalculationLine(`Note — ${note}`);
 }
 
