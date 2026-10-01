@@ -82,7 +82,7 @@ Done when the editor can grow by registering components without rewriting the wh
 
 ## v0.5 — Validation électrique & simulation sans IA
 
-Status: **Part 2A implemented — conservative transformer/motor/relay/contacteur rules; complete tertiary topology support remains in Part 2B**.
+Status: **Part 2B1 complete — supported motor/contacteur power+control topology is deterministic; relay and transformer-secondary support remain in Part 2B2**.
 
 Goal: strengthen the deterministic non-AI product before 3D and classroom work.
 
