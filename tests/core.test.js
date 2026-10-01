@@ -78,6 +78,60 @@ function validMotorContactorProject() {
   return project;
 }
 
+function validRelayLampProject() {
+  const project = createProject({ id: "relay-project" });
+  const source = addComponent(project, "source", { id: "relay-source" });
+  const breaker = addComponent(project, "breaker", {
+    id: "relay-breaker",
+    properties: { ratingA: 10 }
+  });
+  const controlSwitch = addComponent(project, "switch", { id: "relay-switch" });
+  const relay = addComponent(project, "relay", {
+    id: "relay",
+    properties: { coilVoltageV: 230 }
+  });
+  const lamp = addComponent(project, "lamp", {
+    id: "relay-lamp",
+    properties: { powerW: 60 }
+  });
+
+  connect(project, { componentId: source.id, terminalId: "L" }, { componentId: breaker.id, terminalId: "L_IN" }, { id: "r1" });
+  connect(project, { componentId: breaker.id, terminalId: "L_OUT" }, { componentId: relay.id, terminalId: "COM" }, { id: "r2" });
+  connect(project, { componentId: relay.id, terminalId: "NO" }, { componentId: lamp.id, terminalId: "L" }, { id: "r3" });
+  connect(project, { componentId: source.id, terminalId: "N" }, { componentId: lamp.id, terminalId: "N" }, { id: "r4" });
+
+  connect(project, { componentId: source.id, terminalId: "L" }, { componentId: controlSwitch.id, terminalId: "L_IN" }, { id: "r5" });
+  connect(project, { componentId: controlSwitch.id, terminalId: "L_OUT" }, { componentId: relay.id, terminalId: "A1" }, { id: "r6" });
+  connect(project, { componentId: source.id, terminalId: "N" }, { componentId: relay.id, terminalId: "A2" }, { id: "r7" });
+  return project;
+}
+
+function validTransformerSecondaryLampProject() {
+  const project = createProject({ id: "transformer-project" });
+  const source = addComponent(project, "source", { id: "tx-source" });
+  const transformer = addComponent(project, "transformer", {
+    id: "tx",
+    properties: { primaryVoltageV: 230, secondaryVoltageV: 24, ratedPowerVA: 250 }
+  });
+  const breaker = addComponent(project, "breaker", {
+    id: "tx-breaker",
+    properties: { ratingA: 10 }
+  });
+  const sw = addComponent(project, "switch", { id: "tx-switch" });
+  const lamp = addComponent(project, "lamp", {
+    id: "tx-lamp",
+    properties: { powerW: 60 }
+  });
+
+  connect(project, { componentId: source.id, terminalId: "L" }, { componentId: transformer.id, terminalId: "P1" }, { id: "t1" });
+  connect(project, { componentId: source.id, terminalId: "N" }, { componentId: transformer.id, terminalId: "P2" }, { id: "t2" });
+  connect(project, { componentId: transformer.id, terminalId: "S1" }, { componentId: breaker.id, terminalId: "L_IN" }, { id: "t3" });
+  connect(project, { componentId: breaker.id, terminalId: "L_OUT" }, { componentId: sw.id, terminalId: "L_IN" }, { id: "t4" });
+  connect(project, { componentId: sw.id, terminalId: "L_OUT" }, { componentId: lamp.id, terminalId: "L" }, { id: "t5" });
+  connect(project, { componentId: transformer.id, terminalId: "S2" }, { componentId: lamp.id, terminalId: "N" }, { id: "t6" });
+  return project;
+}
+
 test("creates the v0.2 supported components", () => {
   const project = createProject();
   for (const type of ["source", "breaker", "switch", "lamp", "socket", "fuse", "rcd"]) addComponent(project, type);
@@ -354,12 +408,13 @@ test("new tertiary components inherit stable ids, terminals and defaults", () =>
   assert.equal(transformer.properties.secondaryVoltageV, 24);
 });
 
-test("validator blocks false certification for tertiary components still pending full rules", () => {
+test("relay outside the supported topology is rejected explicitly", () => {
   const project = validLampProject();
   addComponent(project, "relay", { id: "relay-extra" });
   const result = validateProject(project);
   assert.equal(result.valid, false);
-  assert.ok(result.errors.some((error) => error.code === "VALIDATION_PENDING_FOR_COMPONENT"));
+  assert.ok(result.errors.some((error) => error.code === "OPEN_RELAY_POWER_PATH"));
+  assert.equal(result.errors.some((error) => error.code === "VALIDATION_PENDING_FOR_COMPONENT"), false);
 });
 
 
@@ -539,4 +594,75 @@ test("rejects contactor outside the supported motor topology", () => {
   const result = validateProject(project);
   assert.equal(result.valid, false);
   assert.ok(result.errors.some((error) => error.code === "CONTACTOR_NOT_IN_SUPPORTED_MOTOR_TOPOLOGY"));
+});
+
+
+test("validates the supported relay NO lamp topology", () => {
+  const project = validRelayLampProject();
+  const result = validateProject(project);
+  assert.equal(result.valid, true);
+  assert.equal(result.errors.length, 0);
+  assert.ok(result.warnings.some((warning) => warning.code === "RELAY_STATIC_CONTACT_MODEL"));
+  assert.equal(result.errors.some((error) => error.code === "VALIDATION_PENDING_FOR_COMPONENT"), false);
+});
+
+test("rejects relay coil voltage mismatch", () => {
+  const project = validRelayLampProject();
+  updateComponent(project, "relay", { properties: { coilVoltageV: 24 } });
+  const result = validateProject(project);
+  assert.equal(result.valid, false);
+  assert.ok(result.errors.some((error) => error.code === "RELAY_COIL_VOLTAGE_MISMATCH"));
+});
+
+test("rejects NC use in the first supported relay topology", () => {
+  const project = validRelayLampProject();
+  connect(project, { componentId: "relay", terminalId: "NC" }, { componentId: "relay-lamp", terminalId: "L" }, { id: "r8" });
+  const result = validateProject(project);
+  assert.equal(result.valid, false);
+  assert.ok(result.errors.some((error) => error.code === "RELAY_NC_NOT_SUPPORTED"));
+});
+
+test("calculates a relay-fed lamp from the source voltage", () => {
+  const result = calculateProject(validRelayLampProject());
+  assert.equal(result.loads.length, 1);
+  assert.equal(result.loads[0].supplyKind, "relay-no");
+  assert.equal(result.loads[0].supplyVoltageV, 230);
+  assert.equal(result.loads[0].estimatedCurrentA, 0.261);
+  assert.equal(result.protectionChecks[0].adequateForKnownLoad, true);
+});
+
+test("validates the first supported transformer secondary lamp topology", () => {
+  const project = validTransformerSecondaryLampProject();
+  const result = validateProject(project);
+  assert.equal(result.valid, true);
+  assert.equal(result.errors.length, 0);
+  assert.equal(result.errors.some((error) => error.code === "VALIDATION_PENDING_FOR_COMPONENT"), false);
+});
+
+test("rejects unsupported transformer secondary wiring", () => {
+  const project = validTransformerSecondaryLampProject();
+  project.wires = project.wires.filter((wire) => wire.id !== "t4");
+  const result = validateProject(project);
+  assert.equal(result.valid, false);
+  assert.ok(result.errors.some((error) => error.code === "UNSUPPORTED_TRANSFORMER_SECONDARY_TOPOLOGY"));
+});
+
+test("calculates transformer-secondary lamp current at secondary voltage", () => {
+  const result = calculateProject(validTransformerSecondaryLampProject());
+  assert.equal(result.loads.length, 1);
+  assert.equal(result.loads[0].supplyKind, "transformer-secondary");
+  assert.equal(result.loads[0].supplyVoltageV, 24);
+  assert.equal(result.loads[0].estimatedCurrentA, 2.5);
+  assert.equal(result.totalEstimatedCurrentA, null);
+  assert.ok(result.notes.some((note) => /domaines de tension/.test(note)));
+});
+
+test("warns when transformer lamp watts exceed declared transformer VA", () => {
+  const project = validTransformerSecondaryLampProject();
+  updateComponent(project, "tx-lamp", { properties: { powerW: 300 } });
+  updateComponent(project, "tx-breaker", { properties: { ratingA: 16 } });
+
+  const result = validateProject(project);
+  assert.equal(result.valid, true);
+  assert.ok(result.warnings.some((warning) => warning.code === "TRANSFORMER_LOAD_POWER_EXCEEDS_RATED_VA"));
 });
