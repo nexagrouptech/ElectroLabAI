@@ -3,7 +3,7 @@ import { calculateProject } from "./simulator.js";
 
 const ALLOWED_BREAKER_RATINGS = [10, 16, 20, 32, 40];
 const ALLOWED_FUSE_RATINGS = [10, 16, 20, 32];
-const FULLY_VALIDATED_TYPES = new Set(["source", "breaker", "switch", "lamp", "socket", "fuse", "rcd"]);
+const FULLY_VALIDATED_TYPES = new Set(["source", "breaker", "switch", "lamp", "socket", "fuse", "rcd", "contactor", "motor"]);
 
 function endpointKey(ref) {
   return `${ref.componentId}::${ref.terminalId}`;
@@ -240,6 +240,191 @@ function validateTertiaryProperties(project, source, checks, errors, warnings) {
   }
 }
 
+function validateMotorContactorTopology(project, source, checks, errors, warnings) {
+  const motors = allOf(project, "motor");
+  const contactors = allOf(project, "contactor");
+  const breakers = allOf(project, "breaker");
+  const switches = allOf(project, "switch");
+  const matchedContactorIds = new Set();
+
+  for (const motor of motors) {
+    const voltageV = Number(motor.properties.voltageV);
+    const powerW = Number(motor.properties.powerW);
+    const ratedCurrentA = Number(motor.properties.ratedCurrentA);
+
+    const voltageOk = Number.isFinite(voltageV) && voltageV > 0;
+    const powerOk = Number.isFinite(powerW) && powerW > 0;
+    const ratedCurrentOk = Number.isFinite(ratedCurrentA) && ratedCurrentA > 0;
+
+    checks.push({ id: `motor-rated-current-${motor.id}`, ok: ratedCurrentOk, label: `${motor.name}: courant nominal plaque renseigné` });
+
+    if (!ratedCurrentOk) {
+      errors.push({
+        code: "MISSING_MOTOR_RATED_CURRENT",
+        message: `${motor.name}: renseigne le courant nominal indiqué sur la plaque moteur avant validation.`
+      });
+    }
+
+    if (!source) continue;
+
+    const matchingContactor = contactors.find((contactor) =>
+      hasTerminalConnection(project, ref(contactor, "T1"), ref(motor, "L"))
+    );
+
+    const matchingBreaker = matchingContactor
+      ? breakers.find(
+          (breaker) =>
+            hasTerminalConnection(project, ref(source, "L"), ref(breaker, "L_IN")) &&
+            hasTerminalConnection(project, ref(breaker, "L_OUT"), ref(matchingContactor, "L1"))
+        )
+      : null;
+
+    const matchingSwitch = matchingContactor
+      ? switches.find(
+          (switchComponent) =>
+            hasTerminalConnection(project, ref(source, "L"), ref(switchComponent, "L_IN")) &&
+            hasTerminalConnection(project, ref(switchComponent, "L_OUT"), ref(matchingContactor, "A1"))
+        )
+      : null;
+
+    const powerPathOk = Boolean(matchingContactor && matchingBreaker);
+    const controlPathOk = Boolean(
+      matchingContactor &&
+      matchingSwitch &&
+      hasTerminalConnection(project, ref(source, "N"), ref(matchingContactor, "A2"))
+    );
+    const neutralOk = hasTerminalConnection(project, ref(source, "N"), ref(motor, "N"));
+    const peOk = hasTerminalConnection(project, ref(source, "PE"), ref(motor, "PE"));
+
+    checks.push({
+      id: `motor-power-path-${motor.id}`,
+      ok: powerPathOk,
+      label: `${motor.name}: source → disjoncteur → contacteur → moteur`
+    });
+    checks.push({
+      id: `motor-control-path-${motor.id}`,
+      ok: controlPathOk,
+      label: `${motor.name}: commande source → interrupteur → bobine contacteur`
+    });
+    checks.push({ id: `motor-neutral-path-${motor.id}`, ok: neutralOk, label: `${motor.name}: neutre raccordé` });
+    checks.push({ id: `motor-pe-path-${motor.id}`, ok: peOk, label: `${motor.name}: PE raccordé` });
+
+    if (!powerPathOk) {
+      errors.push({
+        code: "OPEN_MOTOR_POWER_PATH",
+        message: `${motor.name}: le schéma supporté requiert L source → disjoncteur → L1/T1 contacteur → L moteur.`
+      });
+    }
+    if (!controlPathOk) {
+      errors.push({
+        code: "OPEN_CONTACTOR_CONTROL_PATH",
+        message: `${motor.name}: le schéma supporté requiert L source → interrupteur → A1 contacteur et N source → A2 contacteur.`
+      });
+    }
+    if (!neutralOk) {
+      errors.push({
+        code: "OPEN_MOTOR_NEUTRAL",
+        message: `${motor.name}: relie N source à N moteur.`
+      });
+    }
+    if (!peOk) {
+      errors.push({
+        code: "OPEN_MOTOR_PE",
+        message: `${motor.name}: relie PE source à PE moteur.`
+      });
+    }
+
+    if (matchingContactor) {
+      matchedContactorIds.add(matchingContactor.id);
+
+      const coilVoltageV = Number(matchingContactor.properties.coilVoltageV);
+      const contactorRatingA = Number(matchingContactor.properties.ratingA);
+      const sourceVoltageV = Number(source.properties.voltageV);
+
+      const coilMatches =
+        Number.isFinite(sourceVoltageV) &&
+        Number.isFinite(coilVoltageV) &&
+        sourceVoltageV === coilVoltageV;
+      checks.push({
+        id: `contactor-coil-match-${matchingContactor.id}`,
+        ok: coilMatches,
+        label: `${matchingContactor.name}: tension bobine compatible source`
+      });
+      if (!coilMatches) {
+        errors.push({
+          code: "CONTACTOR_COIL_VOLTAGE_MISMATCH",
+          message: `${matchingContactor.name}: bobine ${coilVoltageV} V incompatible avec la source ${sourceVoltageV} V.`
+        });
+      }
+
+      const motorVoltageMatches =
+        Number.isFinite(sourceVoltageV) &&
+        voltageOk &&
+        sourceVoltageV === voltageV;
+      checks.push({
+        id: `motor-voltage-match-${motor.id}`,
+        ok: motorVoltageMatches,
+        label: `${motor.name}: tension nominale compatible source`
+      });
+      if (!motorVoltageMatches) {
+        errors.push({
+          code: "MOTOR_VOLTAGE_MISMATCH",
+          message: `${motor.name}: tension moteur ${voltageV} V incompatible avec la source ${sourceVoltageV} V.`
+        });
+      }
+
+      if (ratedCurrentOk) {
+        const contactorRatingOk =
+          Number.isFinite(contactorRatingA) && contactorRatingA >= ratedCurrentA;
+        checks.push({
+          id: `contactor-rating-vs-motor-${matchingContactor.id}`,
+          ok: contactorRatingOk,
+          label: `${matchingContactor.name}: calibre ≥ courant nominal moteur`
+        });
+        if (!contactorRatingOk) {
+          errors.push({
+            code: "CONTACTOR_UNDERSIZED_FOR_MOTOR",
+            message: `${matchingContactor.name}: calibre ${contactorRatingA} A inférieur au courant nominal moteur ${ratedCurrentA} A.`
+          });
+        }
+
+        if (matchingBreaker) {
+          const breakerRatingA = Number(matchingBreaker.properties.ratingA);
+          const breakerAtLeastRatedCurrent =
+            Number.isFinite(breakerRatingA) && breakerRatingA >= ratedCurrentA;
+          checks.push({
+            id: `motor-breaker-min-${matchingBreaker.id}-${motor.id}`,
+            ok: breakerAtLeastRatedCurrent,
+            label: `${matchingBreaker.name}: calibre ≥ courant nominal moteur`
+          });
+          if (!breakerAtLeastRatedCurrent) {
+            errors.push({
+              code: "BREAKER_BELOW_MOTOR_RATED_CURRENT",
+              message: `${matchingBreaker.name}: calibre ${breakerRatingA} A inférieur au courant nominal moteur ${ratedCurrentA} A.`
+            });
+          }
+        }
+      }
+    }
+
+    if (powerOk) {
+      warnings.push({
+        code: "MOTOR_STARTING_AND_THERMAL_NOT_MODELED",
+        message: `${motor.name}: courant de démarrage, facteur de puissance, rendement et coordination thermique ne sont pas encore modélisés.`
+      });
+    }
+  }
+
+  for (const contactor of contactors) {
+    if (!matchedContactorIds.has(contactor.id)) {
+      errors.push({
+        code: "CONTACTOR_NOT_IN_SUPPORTED_MOTOR_TOPOLOGY",
+        message: `${contactor.name}: ce contacteur n’est pas raccordé dans le schéma moteur supporté.`
+      });
+    }
+  }
+}
+
 function validateLampCircuit(project, source, checks, errors) {
   const lamp = firstOf(project, "lamp");
   if (!lamp) return;
@@ -438,6 +623,7 @@ export function validateProject(project) {
 
   validateProtectionProperties(project, checks, errors);
   validateTertiaryProperties(project, source, checks, errors, warnings);
+  validateMotorContactorTopology(project, source, checks, errors, warnings);
   validateLampCircuit(project, source, checks, errors);
   validateSocketCircuit(project, source, checks, errors, warnings);
 
