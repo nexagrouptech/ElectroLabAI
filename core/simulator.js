@@ -226,7 +226,7 @@ export function calculateProject(project) {
   const motors = project.components.filter((item) => item.type === "motor");
   if (motors.length) {
     notes.push(
-      "Moteur: courant calculé à partir de la puissance non disponible; utiliser le courant nominal de plaque pour les contrôles supportés."
+      "Moteur: le courant n’est pas calculé à partir de la puissance; utiliser le courant nominal de plaque pour les contrôles supportés."
     );
   }
 
