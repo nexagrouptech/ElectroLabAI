@@ -82,7 +82,7 @@ Done when the editor can grow by registering components without rewriting the wh
 
 ## v0.5 — Validation électrique & simulation sans IA
 
-Status: **Part 1 implemented — deterministic calculation summary for fully supported circuits; awaiting CI/Vercel certification and owner GO for Part 2**.
+Status: **Part 2A implemented — conservative transformer/motor/relay/contacteur rules; complete tertiary topology support remains in Part 2B**.
 
 Goal: strengthen the deterministic non-AI product before 3D and classroom work.
 
