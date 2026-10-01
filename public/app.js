@@ -9,11 +9,12 @@ import {
   updateComponent
 } from "./core/project.js";
 import { validateProject } from "./core/validator.js";
+import { calculateProject } from "./core/simulator.js";
 import { createExerciseProject, evaluateExercise, getExercise, isComponentAllowed, listExercises, recordExerciseAttempt } from "./core/exercises.js";
 import { COMPONENT_CATEGORIES, getComponentDefinition, searchComponentDefinitions } from "./core/catalog.js";
 
-const STORAGE_KEY = "electrolab.v0.4.project";
-const LEGACY_STORAGE_KEYS = ["electrolab.v0.3.project", "electrolab.v0.2.project", "electrolab.v0.1.project"];
+const STORAGE_KEY = "electrolab.v0.5.project";
+const LEGACY_STORAGE_KEYS = ["electrolab.v0.4.project", "electrolab.v0.3.project", "electrolab.v0.2.project", "electrolab.v0.1.project"];
 const workspace = document.querySelector("#workspace");
 const componentLayer = document.querySelector("#component-layer");
 const wireLayer = document.querySelector("#wire-layer");
@@ -26,6 +27,9 @@ const validationPanel = document.querySelector("#validation-panel");
 const validationTitle = document.querySelector("#validation-title");
 const validationSummary = document.querySelector("#validation-summary");
 const validationList = document.querySelector("#validation-list");
+const calculationPanel = document.querySelector("#calculation-panel");
+const calculationSummary = document.querySelector("#calculation-summary");
+const calculationList = document.querySelector("#calculation-list");
 const exerciseSelect = document.querySelector("#exercise-select");
 const exerciseName = document.querySelector("#exercise-name");
 const exerciseObjective = document.querySelector("#exercise-objective");
@@ -380,7 +384,43 @@ function runValidation() {
   }
   for (const error of result.errors) addValidationLine(`Erreur — ${error.message}`);
   for (const warning of result.warnings) addValidationLine(`Attention — ${warning.message}`);
+  renderCalculations(calculateProject(project));
   return result;
+}
+
+function renderCalculations(calculations) {
+  calculationPanel.hidden = false;
+  calculationList.replaceChildren();
+
+  const voltageText = calculations.voltageV ? `${calculations.voltageV} V` : "non disponible";
+  const powerText = calculations.totalKnownPowerW > 0 ? `${calculations.totalKnownPowerW} W` : "0 W";
+  const currentText =
+    calculations.totalEstimatedCurrentA !== null
+      ? `${calculations.totalEstimatedCurrentA} A`
+      : "non calculable";
+
+  calculationSummary.textContent =
+    `Source: ${voltageText} • puissance connue: ${powerText} • courant estimé: ${currentText}`;
+
+  for (const load of calculations.loads) {
+    addCalculationLine(
+      `${load.name}: ${load.powerW} W → ${load.estimatedCurrentA} A estimé`
+    );
+  }
+
+  for (const protection of calculations.protectionChecks) {
+    addCalculationLine(
+      `${protection.label}: ${protection.ratingA} A / charge estimée ${protection.estimatedLoadCurrentA} A ${protection.adequateForKnownLoad ? "✓" : "⚠"}`
+    );
+  }
+
+  for (const note of calculations.notes) addCalculationLine(`Note — ${note}`);
+}
+
+function addCalculationLine(text) {
+  const li = document.createElement("li");
+  li.textContent = text;
+  calculationList.appendChild(li);
 }
 
 function renderExerciseSelection() {
@@ -453,6 +493,9 @@ function clearValidation() {
   validationTitle.textContent = "Pas encore vérifié";
   validationSummary.textContent = "Construis le circuit puis appuie sur « Valider ».";
   validationList.replaceChildren();
+  calculationPanel.hidden = true;
+  calculationSummary.textContent = "";
+  calculationList.replaceChildren();
 }
 
 function showError(message) {
