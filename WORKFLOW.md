@@ -29,7 +29,7 @@ Large tasks are split into small parts to avoid long-running sessions and timeou
 
 ## Current branch
 
-`feature/v0.5-validation-simulation`
+`main` — hold before v0.6 until electrician review is completed
 
 
 ## Deployment workflow
