@@ -41,9 +41,9 @@ Next after owner GO:
 
 ## Validation gate
 
-- [ ] GitHub Actions Node 20.
-- [ ] GitHub Actions Node 22.
-- [ ] Vercel Preview.
+- [x] GitHub Actions Node 20.
+- [x] GitHub Actions Node 22.
+- [x] Vercel Preview.
 - [ ] Owner GO for Part 2.
 
 ## AI policy
