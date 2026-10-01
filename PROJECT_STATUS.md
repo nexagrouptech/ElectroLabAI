@@ -132,7 +132,7 @@ Implementation pushed with dedicated tests.
 - [x] Vercel Preview: READY.
 - [x] Owner approved final v0.5 for progression and external review.
 - [x] PR #5 merged to `main`.
-- [ ] Prepare and verify the short/public production URL for electrician review.
+- [ ] Prepare and verify the short/public production URL for electrician review — production deployment is green, but the connected Vercel tool cannot currently access the `nexagrouptechs-projects` scope (403 authorization mismatch).
 - [ ] Structured remote-electrician review before proceeding into 3D/classroom work.
 
 
@@ -146,3 +146,13 @@ Do not start v0.6 yet. The next gate is:
 1. verify the public production URL;
 2. send the v0.5 test plan to the electrician;
 3. collect and review the electrician report.
+
+
+## Production URL preparation
+
+- Main is deployed successfully through the Git → Vercel integration.
+- The project is ready for a production/public URL.
+- The connected Vercel integration currently returns 403 for the `nexagrouptechs-projects` scope, so it cannot inspect or edit the project domain from this chat.
+- Do not send the long feature Preview URL to the electrician as the canonical v0.5 link.
+- Next safe action: restore Vercel connector authorization for this scope or use the already-authenticated Vercel CLI/dashboard to confirm the project's Production Domain and anonymous/public access.
+- After the short production URL is verified in a signed-out/private browser, update this file and send the electrician test plan.
