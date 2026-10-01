@@ -192,9 +192,10 @@ export const COMPONENT_CATALOG = Object.freeze({
     ],
     propertySchema: {
       voltageV: { label: "Tension", input: "number", unit: "V", min: 1, step: 1 },
-      powerW: { label: "Puissance", input: "number", unit: "W", min: 1, step: 1 }
+      powerW: { label: "Puissance mécanique", input: "number", unit: "W", min: 1, step: 1 },
+      ratedCurrentA: { label: "Courant nominal plaque", input: "number", unit: "A", min: 0.1, step: 0.1 }
     },
-    defaultProperties: { voltageV: 230, powerW: 750 }
+    defaultProperties: { voltageV: 230, powerW: 750, ratedCurrentA: 0 }
   })
 });
 
