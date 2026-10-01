@@ -370,3 +370,76 @@ test("does not invent socket consumption without a declared load", () => {
   assert.equal(result.totalEstimatedCurrentA, null);
   assert.ok(result.notes.some((note) => /prises/.test(note)));
 });
+
+
+test("calculates transformer nominal currents from declared VA and voltages", () => {
+  const project = createProject();
+  addComponent(project, "transformer", { id: "tx" });
+  const result = calculateProject(project);
+  assert.equal(result.transformers.length, 1);
+  assert.equal(result.transformers[0].voltageRatio, 0.1043);
+  assert.equal(result.transformers[0].ratedPrimaryCurrentA, 1.087);
+  assert.equal(result.transformers[0].ratedSecondaryCurrentA, 10.417);
+});
+
+test("rejects a connected transformer when source voltage mismatches declared primary", () => {
+  const project = createProject();
+  const source = addComponent(project, "source", { id: "source-tx" });
+  const transformer = addComponent(project, "transformer", {
+    id: "tx",
+    properties: { primaryVoltageV: 120 }
+  });
+
+  connect(project, { componentId: source.id, terminalId: "L" }, { componentId: transformer.id, terminalId: "P1" }, { id: "tx1" });
+  connect(project, { componentId: source.id, terminalId: "N" }, { componentId: transformer.id, terminalId: "P2" }, { id: "tx2" });
+
+  const result = validateProject(project);
+  assert.ok(result.errors.some((error) => error.code === "TRANSFORMER_PRIMARY_VOLTAGE_MISMATCH"));
+});
+
+test("rejects an incomplete transformer secondary pair", () => {
+  const project = createProject();
+  const transformer = addComponent(project, "transformer", { id: "tx" });
+  const lamp = addComponent(project, "lamp", { id: "secondary-lamp" });
+
+  connect(project, { componentId: transformer.id, terminalId: "S1" }, { componentId: lamp.id, terminalId: "L" }, { id: "tx-secondary" });
+
+  const result = validateProject(project);
+  assert.ok(result.errors.some((error) => error.code === "OPEN_TRANSFORMER_SECONDARY"));
+});
+
+test("checks motor properties and requires L N PE when wiring has started", () => {
+  const project = createProject();
+  const source = addComponent(project, "source", { id: "source-motor" });
+  const motor = addComponent(project, "motor", { id: "motor" });
+
+  connect(project, { componentId: source.id, terminalId: "L" }, { componentId: motor.id, terminalId: "L" }, { id: "m1" });
+  connect(project, { componentId: source.id, terminalId: "N" }, { componentId: motor.id, terminalId: "N" }, { id: "m2" });
+
+  const result = validateProject(project);
+  assert.ok(result.errors.some((error) => error.code === "INCOMPLETE_MOTOR_TERMINALS"));
+  assert.ok(result.errors.some((error) => error.code === "VALIDATION_PENDING_FOR_COMPONENT"));
+});
+
+test("does not fabricate motor current without power factor and efficiency modeling", () => {
+  const project = createProject();
+  addComponent(project, "motor", { id: "motor" });
+  const result = calculateProject(project);
+  assert.equal(result.loads.some((item) => item.type === "motor"), false);
+  assert.ok(result.notes.some((note) => /Moteur/.test(note) && /pas calculé/.test(note)));
+});
+
+test("validates positive relay and contactor declared properties before topology support", () => {
+  const project = createProject();
+  const relay = addComponent(project, "relay", { id: "relay", properties: { coilVoltageV: 0 } });
+  const contactor = addComponent(project, "contactor", {
+    id: "contactor",
+    properties: { coilVoltageV: 230, ratingA: 0 }
+  });
+
+  const result = validateProject(project);
+  assert.ok(result.errors.some((error) => error.code === "INVALID_RELAY_COIL_VOLTAGE"));
+  assert.ok(result.errors.some((error) => error.code === "INVALID_CONTACTOR_PROPERTIES"));
+  assert.equal(relay.properties.coilVoltageV, 0);
+  assert.equal(contactor.properties.ratingA, 0);
+});
