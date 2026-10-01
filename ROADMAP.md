@@ -82,7 +82,7 @@ Done when the editor can grow by registering components without rewriting the wh
 
 ## v0.5 — Validation électrique & simulation sans IA
 
-Status: **Part 2B1 complete — supported motor/contacteur power+control topology is deterministic; relay and transformer-secondary support remain in Part 2B2**.
+Status: **functional scope complete — deterministic lamp/domestic/motor/contacteur/relay/transformer-secondary supported cases implemented; awaiting owner usability certification and merge**.
 
 Goal: strengthen the deterministic non-AI product before 3D and classroom work.
 
