@@ -27,6 +27,7 @@ export function calculateProject(project) {
   const usableVoltage = Number.isFinite(voltageV) && voltageV > 0 ? voltageV : null;
 
   const loads = [];
+  const transformers = [];
   const protectionChecks = [];
   const notes = [];
 
@@ -76,6 +77,46 @@ export function calculateProject(project) {
     }
   }
 
+  const transformerComponents = project.components.filter((item) => item.type === "transformer");
+  for (const transformer of transformerComponents) {
+    const primaryVoltageV = Number(transformer.properties?.primaryVoltageV);
+    const secondaryVoltageV = Number(transformer.properties?.secondaryVoltageV);
+    const ratedPowerVA = Number(transformer.properties?.ratedPowerVA);
+
+    if (
+      !Number.isFinite(primaryVoltageV) ||
+      primaryVoltageV <= 0 ||
+      !Number.isFinite(secondaryVoltageV) ||
+      secondaryVoltageV <= 0 ||
+      !Number.isFinite(ratedPowerVA) ||
+      ratedPowerVA <= 0
+    ) {
+      continue;
+    }
+
+    transformers.push({
+      componentId: transformer.id,
+      name: transformer.name,
+      primaryVoltageV,
+      secondaryVoltageV,
+      ratedPowerVA,
+      voltageRatio: round(secondaryVoltageV / primaryVoltageV, 4),
+      ratedPrimaryCurrentA: round(ratedPowerVA / primaryVoltageV),
+      ratedSecondaryCurrentA: round(ratedPowerVA / secondaryVoltageV)
+    });
+  }
+
+  if (transformers.length) {
+    notes.push("Transformateur: courants nominaux calculés avec S/V; pertes et rendement ne sont pas modélisés.");
+  }
+
+  const motors = project.components.filter((item) => item.type === "motor");
+  if (motors.length) {
+    notes.push(
+      "Moteur: le courant n’est pas calculé tant que rendement, facteur de puissance et courant de démarrage ne sont pas modélisés."
+    );
+  }
+
   const sockets = project.components.filter((item) => item.type === "socket");
   if (sockets.length) {
     notes.push("La consommation des prises n’est pas calculée sans charge renseignée.");
@@ -83,7 +124,7 @@ export function calculateProject(project) {
 
   const pendingTypes = [...new Set(
     project.components
-      .filter((item) => ["relay", "contactor", "transformer", "motor"].includes(item.type))
+      .filter((item) => ["relay", "contactor", "motor"].includes(item.type))
       .map((item) => item.type)
   )];
   if (pendingTypes.length) {
@@ -97,6 +138,7 @@ export function calculateProject(project) {
   return {
     voltageV: usableVoltage,
     loads,
+    transformers,
     totalKnownPowerW,
     totalEstimatedCurrentA,
     protectionChecks,
