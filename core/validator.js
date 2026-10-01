@@ -1,4 +1,5 @@
 import { COMPONENT_LIBRARY, findTerminal } from "./project.js";
+import { calculateProject } from "./simulator.js";
 
 const ALLOWED_BREAKER_RATINGS = [10, 16, 20, 32, 40];
 const ALLOWED_FUSE_RATINGS = [10, 16, 20, 32];
@@ -292,6 +293,22 @@ export function validateProject(project) {
   validateProtectionProperties(project, checks, errors);
   validateLampCircuit(project, source, checks, errors);
   validateSocketCircuit(project, source, checks, errors, warnings);
+
+  const calculations = calculateProject(project);
+  for (const protection of calculations.protectionChecks) {
+    checks.push({
+      id: `known-load-protection-${protection.componentId}-${protection.loadComponentId}`,
+      ok: protection.adequateForKnownLoad,
+      label: `${protection.label}: calibre ≥ courant estimé`
+    });
+    if (!protection.adequateForKnownLoad) {
+      warnings.push({
+        code: "PROTECTION_BELOW_ESTIMATED_LOAD",
+        message:
+          `${protection.label}: calibre ${protection.ratingA} A inférieur au courant estimé ${protection.estimatedLoadCurrentA} A.`
+      });
+    }
+  }
 
   const connectedTerminalKeys = new Set();
   for (const wire of validWires) {
