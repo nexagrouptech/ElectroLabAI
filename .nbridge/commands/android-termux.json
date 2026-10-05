@@ -1,0 +1,15 @@
+{
+  "schema": "nbridge.command.v1",
+  "id": "cmd-20261005-electrolab-bridge-ping-1",
+  "repository": "nexagrouptech/ElectroLabAI",
+  "device": "android-termux",
+  "argv": [
+    "git",
+    "status",
+    "--short",
+    "--branch"
+  ],
+  "cwd": ".",
+  "environment": "ubuntu-proot",
+  "timeout_seconds": 120
+}
