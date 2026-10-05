@@ -1,0 +1,42 @@
+{
+  "request_id": "cmd-20261005-electrolab-bridge-ping-1",
+  "state": "PUBLISHING",
+  "detected_at": "2026-10-05T11:11:49+00:00",
+  "started_at": "2026-10-05T11:11:53+00:00",
+  "heartbeat_at": "2026-10-05T11:29:06+00:00",
+  "elapsed_seconds": 5.0,
+  "finished_at": "2026-10-05T11:11:58+00:00",
+  "published_at": null,
+  "exit_code": 0,
+  "error": "GitHub branch creation failed [not_found] via ubuntu-proot: {\"message\":\"Not Found\",\"documentation_url\":\"https://docs.github.com/rest/git/refs#create-a-reference\",\"status\":\"404\"}gh: Not Found (HTTP 404)",
+  "process_pid": 32035,
+  "request": {
+    "schema": "nbridge.command.v1",
+    "id": "cmd-20261005-electrolab-bridge-ping-1",
+    "repository": "nexagrouptech/ElectroLabAI",
+    "device": "android-termux",
+    "argv": [
+      "git",
+      "status",
+      "--short",
+      "--branch"
+    ],
+    "cwd": "/data/data/com.termux/files/usr/var/lib/proot-distro/containers/ubuntu/rootfs/root/ElectroLabAI",
+    "environment": "ubuntu-proot",
+    "timeout_seconds": 120,
+    "created_at": null,
+    "expires_at": null,
+    "decision": "ALLOW",
+    "decision_reason": "Read-only diagnostic command."
+  },
+  "status_publish_error": "GitHub branch creation failed [not_found] via ubuntu-proot: {\"message\":\"Not Found\",\"documentation_url\":\"https://docs.github.com/rest/git/refs#create-a-reference\",\"status\":\"404\"}gh: Not Found (HTTP 404)",
+  "schema": "nbridge.command.status.v1",
+  "bridge_version": "1.4.0",
+  "device": "android-termux",
+  "bridge_heartbeat_at": "2026-10-05T11:29:02+00:00",
+  "bridge_heartbeat_interval_seconds": 5,
+  "command_heartbeat_publish_interval_seconds": 15,
+  "stale_after_seconds": 45,
+  "last_poll_at": "2026-10-05T11:29:03+00:00",
+  "next_poll_at": "2026-10-05T11:29:20+00:00"
+}
