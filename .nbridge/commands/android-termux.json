@@ -1,13 +1,12 @@
 {
   "schema": "nbridge.command.v1",
-  "id": "cmd-20261005-electrolab-bridge-ping-2",
+  "id": "cmd-20261005-electrolab-bootstrap-diagnostic-1",
   "repository": "nexagrouptech/ElectroLabAI",
   "device": "android-termux",
   "argv": [
-    "git",
-    "status",
-    "--short",
-    "--branch"
+    "bash",
+    "-lc",
+    "git rev-parse HEAD && git remote get-url origin && git branch --show-current"
   ],
   "cwd": ".",
   "environment": "ubuntu-proot",
