@@ -180,3 +180,39 @@ The structured review package is now stored in:
 ```text
 ELECTRICIAN_REVIEW_V0.5.md
 ```
+
+
+## v0.5.1 Part 1 — Smart lamp visual feedback
+
+Status: **implemented on feature branch; awaiting owner visual acceptance before merge.**
+
+Implemented:
+
+- deterministic visual-state layer in `core/visual-state.js`;
+- lamp remains visually grey/off while no supported complete supply topology is recognized;
+- lamp becomes yellow with a light-ray/glow treatment when the deterministic simulator recognizes a supported energized lamp topology;
+- state label shows `Éteinte` or `Allumée`;
+- visual state recalculates whenever the project re-renders after wiring/property changes;
+- visual feedback is derived from the same deterministic calculation model, not a separate fake animation engine;
+- other component visuals remain unchanged in Part 1 and will be addressed only after owner GO.
+
+Validation:
+
+- Android/Ubuntu NBridge: 59/59 Node tests PASS;
+- syntax check PASS;
+- static build PASS;
+- GitHub Actions Node 20 PASS;
+- GitHub Actions Node 22 PASS;
+- Vercel preview PASS.
+
+Branch:
+
+```text
+feature/v0.5.1-smart-lamp-visual
+```
+
+Next gate:
+
+1. owner visual/usability check of the lamp;
+2. if accepted, proceed to v0.5.1 Part 2 for richer visuals/states of existing components;
+3. do not start v0.6 3D before electrician review and correction triage.
