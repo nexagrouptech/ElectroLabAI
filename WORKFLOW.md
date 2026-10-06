@@ -29,7 +29,7 @@ Large tasks are split into small parts to avoid long-running sessions and timeou
 
 ## Current branch
 
-`main` — hold before v0.6 until electrician review is completed
+`feature/v0.5.1-smart-lamp-visual` — v0.5.1 Part 1 visual feedback; merge only after owner visual acceptance
 
 
 ## Deployment workflow
