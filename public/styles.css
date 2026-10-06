@@ -99,6 +99,79 @@ button.danger { border-color: #7f1d1d; color: #fecdd3; }
   cursor: grab;
 }
 .component-symbol { color: var(--accent); margin-right: 5px; }
+
+.component-visual {
+  min-height: 66px;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 2px;
+  padding: 5px 8px 0;
+}
+
+.lamp-svg {
+  width: 54px;
+  height: 58px;
+  overflow: visible;
+}
+
+.lamp-glass {
+  fill: #475569;
+  stroke: #94a3b8;
+  stroke-width: 2;
+  transition: fill .18s ease, stroke .18s ease, filter .18s ease;
+}
+
+.lamp-filament,
+.lamp-neck,
+.lamp-base,
+.lamp-rays path {
+  fill: none;
+  stroke: #94a3b8;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: stroke .18s ease, opacity .18s ease;
+}
+
+.lamp-rays {
+  opacity: 0;
+  transition: opacity .18s ease;
+}
+
+.component.visual-energized .lamp-glass {
+  fill: #fde047;
+  stroke: #facc15;
+  filter: drop-shadow(0 0 8px rgba(250, 204, 21, .72));
+}
+
+.component.visual-energized .lamp-filament,
+.component.visual-energized .lamp-neck,
+.component.visual-energized .lamp-base,
+.component.visual-energized .lamp-rays path {
+  stroke: #fef08a;
+}
+
+.component.visual-energized .lamp-rays {
+  opacity: 1;
+}
+
+.component-state-label {
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+.component.visual-energized .component-state-label {
+  color: #fde047;
+}
+
+.component-lamp .terminals {
+  padding-top: 8px;
+}
+
 .terminals { display: flex; justify-content: space-between; gap: 8px; padding: 14px 8px; }
 .terminal {
   min-width: 48px;
