@@ -1,0 +1,43 @@
+{
+  "schema": "nbridge.command.result.v1",
+  "bridge_version": "1.4.0",
+  "request_id": "cmd-20261006-electrolab-local-state-1",
+  "device": "android-termux",
+  "repository": "nexagrouptech/ElectroLabAI",
+  "argv": [
+    "bash",
+    "-lc",
+    "git branch -vv && echo '---' && git rev-parse HEAD && git rev-parse --verify main 2>/dev/null || true && echo '---' && git status --short --branch"
+  ],
+  "cwd": "/data/data/com.termux/files/usr/var/lib/proot-distro/containers/ubuntu/rootfs/root/ElectroLabAI",
+  "environment": "ubuntu-proot",
+  "decision": "APPROVED",
+  "decision_reason": "Command is outside the automatic allowlist.",
+  "status": "passed",
+  "message": "Command completed.",
+  "ok": true,
+  "stdout": "* feature/v0.1-circuit-lampe 934b0ed [origin/feature/v0.1-circuit-lampe] docs: add remote tester deployment fallback\n  main                       ab1c6ec [origin/main: behind 1] Initial commit\n---\n934b0edab3d1b1df59efa40c49a68e8f095147f3\nab1c6ec7d71545a5adf8d64433d9927f890cafb0\n---\n## feature/v0.1-circuit-lampe...origin/feature/v0.1-circuit-lampe\n?? .gitignore\n?? node_modules/\n?? package-lock.json\n",
+  "stderr": "",
+  "duration_ms": 2016,
+  "exit_code": 0,
+  "started_at": "2026-10-06T08:00:24+00:00",
+  "state": "FINISHED",
+  "detected_at": "2026-10-06T08:00:17+00:00",
+  "heartbeat_at": "2026-10-06T08:00:33+00:00",
+  "elapsed_seconds": 9.0,
+  "finished_at": "2026-10-06T08:00:33+00:00",
+  "error": null,
+  "execution": {
+    "state": "FINISHED",
+    "exit_code": 0,
+    "error": null,
+    "started_at": "2026-10-06T08:00:24+00:00",
+    "finished_at": "2026-10-06T08:00:33+00:00",
+    "duration_ms": 2016
+  },
+  "record_kind": "immutable_execution_history",
+  "archived_at": "2026-10-06T08:00:56+00:00",
+  "report_history_path": ".nbridge/commands/results/android-termux/cmd-20261006-electrolab-local-state-1.json",
+  "report_latest_path": ".nbridge/commands/results/android-termux.json",
+  "publication_state_source": ".nbridge/commands/results/android-termux.json"
+}
