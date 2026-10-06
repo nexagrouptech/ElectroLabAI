@@ -156,3 +156,27 @@ Do not start v0.6 yet. The next gate is:
 - Canonical electrician-review URL: `https://electro-lab-ai.vercel.app`.
 - Verification evidence: HTTP 200, `text/html`, page title `ElectroLab AI — Validation & simulation`.
 - Next gate: send the structured v0.5 electrician test plan, then collect and triage the electrician report before starting v0.6.
+
+
+## Expanded component library captured
+
+Owner-provided component expansion (>85 items) has been captured in:
+
+```text
+COMPONENT_LIBRARY_EXPANSION.md
+```
+
+Integration rule:
+
+- keep v0.5 production behavior unchanged during electrician review;
+- classify future components under CONDUCTEURS / PROTECTION / COMMANDE / RÉCEPTION / TERRE;
+- keep secondary technical domains for measurement, distribution, automation, solar, enclosures and energy sources;
+- use staged states `CATALOG_ONLY → CONNECTABLE → VALIDATED`;
+- treat TERRE as the first safety-priority expansion after electrician review;
+- do not begin v0.6 3D until the electrician report is received and triaged.
+
+The structured review package is now stored in:
+
+```text
+ELECTRICIAN_REVIEW_V0.5.md
+```
