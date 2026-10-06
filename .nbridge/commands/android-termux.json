@@ -1,13 +1,12 @@
 {
   "schema": "nbridge.command.v1",
-  "id": "cmd-20261006-electrolab-resume-check-1",
+  "id": "cmd-20261006-electrolab-local-state-1",
   "repository": "nexagrouptech/ElectroLabAI",
   "device": "android-termux",
   "argv": [
-    "git",
-    "status",
-    "--short",
-    "--branch"
+    "bash",
+    "-lc",
+    "git branch -vv && echo '---' && git rev-parse HEAD && git rev-parse --verify main 2>/dev/null || true && echo '---' && git status --short --branch"
   ],
   "cwd": ".",
   "environment": "ubuntu-proot",
