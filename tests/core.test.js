@@ -10,6 +10,7 @@ import {
 } from "../core/project.js";
 import { validateProject } from "../core/validator.js";
 import { calculateProject } from "../core/simulator.js";
+import { getComponentVisualState } from "../core/visual-state.js";
 import {
   COMPONENT_CATALOG,
   getComponentDefinition,
@@ -131,6 +132,27 @@ function validTransformerSecondaryLampProject() {
   connect(project, { componentId: transformer.id, terminalId: "S2" }, { componentId: lamp.id, terminalId: "N" }, { id: "t6" });
   return project;
 }
+
+
+test("keeps a lamp visually off while its supported supply topology is incomplete", () => {
+  const project = createProject({ id: "visual-lamp-off" });
+  const lamp = addComponent(project, "lamp", { id: "lamp-off" });
+  const state = getComponentVisualState(lamp, calculateProject(project));
+
+  assert.equal(state.key, "inactive");
+  assert.equal(state.energized, false);
+  assert.equal(state.label, "Éteinte");
+});
+
+test("lights a lamp visually when a supported supply topology is complete", () => {
+  const project = validLampProject();
+  const lamp = project.components.find((item) => item.type === "lamp");
+  const state = getComponentVisualState(lamp, calculateProject(project));
+
+  assert.equal(state.key, "energized");
+  assert.equal(state.energized, true);
+  assert.equal(state.label, "Allumée");
+});
 
 test("creates the v0.2 supported components", () => {
   const project = createProject();
