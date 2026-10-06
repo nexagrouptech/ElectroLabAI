@@ -1,13 +1,13 @@
 {
   "schema": "nbridge.command.result.v1",
   "bridge_version": "1.4.0",
-  "request_id": "cmd-20261006-electrolab-local-state-1",
+  "request_id": "cmd-20261006-electrolab-sync-main-1",
   "device": "android-termux",
   "repository": "nexagrouptech/ElectroLabAI",
   "argv": [
     "bash",
     "-lc",
-    "git branch -vv && echo '---' && git rev-parse HEAD && git rev-parse --verify main 2>/dev/null || true && echo '---' && git status --short --branch"
+    "set -e; git fetch origin main; git switch main; git pull --ff-only origin main; echo '---'; git rev-parse HEAD; git status --short --branch"
   ],
   "cwd": "/data/data/com.termux/files/usr/var/lib/proot-distro/containers/ubuntu/rootfs/root/ElectroLabAI",
   "environment": "ubuntu-proot",
@@ -17,25 +17,25 @@
   "message": "Command completed.",
   "report_published": true,
   "ok": true,
-  "stdout": "* feature/v0.1-circuit-lampe 934b0ed [origin/feature/v0.1-circuit-lampe] docs: add remote tester deployment fallback\n  main                       ab1c6ec [origin/main: behind 1] Initial commit\n---\n934b0edab3d1b1df59efa40c49a68e8f095147f3\nab1c6ec7d71545a5adf8d64433d9927f890cafb0\n---\n## feature/v0.1-circuit-lampe...origin/feature/v0.1-circuit-lampe\n?? .gitignore\n?? node_modules/\n?? package-lock.json\n",
-  "stderr": "",
-  "duration_ms": 2016,
+  "stdout": "Your branch is behind 'origin/main' by 18 commits, and can be fast-forwarded.\n  (use \"git pull\" to update your local branch)\nUpdating ab1c6ec..2ae69ff\nFast-forward\n .github/workflows/ci.yml |  38 ++\n PROJECT_STATUS.md        | 158 +++++++++\n ROADMAP.md               | 134 +++++++\n WORKFLOW.md              |  50 +++\n core/catalog.js          | 230 ++++++++++++\n core/exercises.js        | 145 ++++++++\n core/project.js          | 148 ++++++++\n core/simulator.js        | 266 ++++++++++++++\n core/validator.js        | 900 +++++++++++++++++++++++++++++++++++++++++++++++\n package.json             |  19 +\n public/app.js            | 530 ++++++++++++++++++++++++++++\n public/index.html        |  98 ++++++\n public/styles.css        | 261 ++++++++++++++\n scripts/build-static.mjs |  12 +\n server.mjs               |  24 ++\n tests/core.test.js       | 668 +++++++++++++++++++++++++++++++++++\n vercel.json              |   7 +\n 17 files changed, 3688 insertions(+)\n create mode 100644 .github/workflows/ci.yml\n create mode 100644 PROJECT_STATUS.md\n create mode 100644 ROADMAP.md\n create mode 100644 WORKFLOW.md\n create mode 100644 core/catalog.js\n create mode 100644 core/exercises.js\n create mode 100644 core/project.js\n create mode 100644 core/simulator.js\n create mode 100644 core/validator.js\n create mode 100644 package.json\n create mode 100644 public/app.js\n create mode 100644 public/index.html\n create mode 100644 public/styles.css\n create mode 100644 scripts/build-static.mjs\n create mode 100644 server.mjs\n create mode 100644 tests/core.test.js\n create mode 100644 vercel.json\n---\n2ae69ffe4d1ec74f2db18000d41260bcfb471bc2\n## main...origin/main\n?? .gitignore\n?? node_modules/\n?? package-lock.json\n",
+  "stderr": "From https://github.com/nexagrouptech/ElectroLabAI\n * branch            main       -> FETCH_HEAD\n   3940c3f..2ae69ff  main       -> origin/main\nSwitched to branch 'main'\nFrom https://github.com/nexagrouptech/ElectroLabAI\n * branch            main       -> FETCH_HEAD\n",
+  "duration_ms": 9015,
   "exit_code": 0,
-  "started_at": "2026-10-06T08:00:24+00:00",
+  "started_at": "2026-10-06T08:02:01+00:00",
   "state": "PUBLISHED",
-  "detected_at": "2026-10-06T08:00:17+00:00",
-  "heartbeat_at": "2026-10-06T08:01:06+00:00",
-  "elapsed_seconds": 9.0,
-  "finished_at": "2026-10-06T08:00:33+00:00",
-  "published_at": "2026-10-06T08:01:06+00:00",
+  "detected_at": "2026-10-06T08:01:55+00:00",
+  "heartbeat_at": "2026-10-06T08:03:00+00:00",
+  "elapsed_seconds": 23.0,
+  "finished_at": "2026-10-06T08:02:24+00:00",
+  "published_at": "2026-10-06T08:03:00+00:00",
   "error": null,
   "execution": {
     "state": "FINISHED",
     "exit_code": 0,
     "error": null,
-    "started_at": "2026-10-06T08:00:24+00:00",
-    "finished_at": "2026-10-06T08:00:33+00:00",
-    "duration_ms": 2016
+    "started_at": "2026-10-06T08:02:01+00:00",
+    "finished_at": "2026-10-06T08:02:24+00:00",
+    "duration_ms": 9015
   },
   "publication": {
     "state": "PUBLISHED",
@@ -52,5 +52,5 @@
   "report_branch": "nbridge/reports",
   "report_path": ".nbridge/commands/results/android-termux.json",
   "report_latest_path": ".nbridge/commands/results/android-termux.json",
-  "report_history_path": ".nbridge/commands/results/android-termux/cmd-20261006-electrolab-local-state-1.json"
+  "report_history_path": ".nbridge/commands/results/android-termux/cmd-20261006-electrolab-sync-main-1.json"
 }
