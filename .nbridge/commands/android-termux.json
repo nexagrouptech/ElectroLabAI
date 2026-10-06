@@ -1,14 +1,15 @@
 {
   "schema": "nbridge.command.v1",
-  "id": "cmd-20261005-electrolab-bootstrap-diagnostic-1",
+  "id": "cmd-20261006-electrolab-resume-check-1",
   "repository": "nexagrouptech/ElectroLabAI",
   "device": "android-termux",
   "argv": [
-    "bash",
-    "-lc",
-    "git rev-parse HEAD && git remote get-url origin && git branch --show-current"
+    "git",
+    "status",
+    "--short",
+    "--branch"
   ],
   "cwd": ".",
   "environment": "ubuntu-proot",
-  "timeout_seconds": 120
+  "timeout_seconds": 60
 }
