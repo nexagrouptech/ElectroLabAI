@@ -1,41 +1,42 @@
 {
   "schema": "nbridge.command.result.v1",
   "bridge_version": "1.4.0",
-  "request_id": "cmd-20261005-electrolab-bootstrap-diagnostic-1",
+  "request_id": "cmd-20261006-electrolab-resume-check-1",
   "device": "android-termux",
   "repository": "nexagrouptech/ElectroLabAI",
   "argv": [
-    "bash",
-    "-lc",
-    "git rev-parse HEAD && git remote get-url origin && git branch --show-current"
+    "git",
+    "status",
+    "--short",
+    "--branch"
   ],
   "cwd": "/data/data/com.termux/files/usr/var/lib/proot-distro/containers/ubuntu/rootfs/root/ElectroLabAI",
   "environment": "ubuntu-proot",
-  "decision": "APPROVED",
-  "decision_reason": "Command is outside the automatic allowlist.",
+  "decision": "ALLOW",
+  "decision_reason": "Read-only diagnostic command.",
   "status": "passed",
   "message": "Command completed.",
   "report_published": true,
   "ok": true,
-  "stdout": "934b0edab3d1b1df59efa40c49a68e8f095147f3\nhttps://github.com/nexagrouptech/ElectroLabAI.git\nfeature/v0.1-circuit-lampe\n",
+  "stdout": "## feature/v0.1-circuit-lampe...origin/feature/v0.1-circuit-lampe\n?? .gitignore\n?? node_modules/\n?? package-lock.json\n",
   "stderr": "",
-  "duration_ms": 1010,
+  "duration_ms": 3038,
   "exit_code": 0,
-  "started_at": "2026-10-05T11:32:17+00:00",
+  "started_at": "2026-10-06T07:58:52+00:00",
   "state": "PUBLISHED",
-  "detected_at": "2026-10-05T11:32:10+00:00",
-  "heartbeat_at": "2026-10-05T11:32:46+00:00",
-  "elapsed_seconds": 8.0,
-  "finished_at": "2026-10-05T11:32:25+00:00",
-  "published_at": "2026-10-05T11:32:46+00:00",
+  "detected_at": "2026-10-06T07:58:44+00:00",
+  "heartbeat_at": "2026-10-06T07:59:34+00:00",
+  "elapsed_seconds": 16.0,
+  "finished_at": "2026-10-06T07:59:08+00:00",
+  "published_at": "2026-10-06T07:59:34+00:00",
   "error": null,
   "execution": {
     "state": "FINISHED",
     "exit_code": 0,
     "error": null,
-    "started_at": "2026-10-05T11:32:17+00:00",
-    "finished_at": "2026-10-05T11:32:25+00:00",
-    "duration_ms": 1010
+    "started_at": "2026-10-06T07:58:52+00:00",
+    "finished_at": "2026-10-06T07:59:08+00:00",
+    "duration_ms": 3038
   },
   "publication": {
     "state": "PUBLISHED",
@@ -52,5 +53,5 @@
   "report_branch": "nbridge/reports",
   "report_path": ".nbridge/commands/results/android-termux.json",
   "report_latest_path": ".nbridge/commands/results/android-termux.json",
-  "report_history_path": ".nbridge/commands/results/android-termux/cmd-20261005-electrolab-bootstrap-diagnostic-1.json"
+  "report_history_path": ".nbridge/commands/results/android-termux/cmd-20261006-electrolab-resume-check-1.json"
 }
