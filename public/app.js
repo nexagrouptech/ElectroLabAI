@@ -10,6 +10,7 @@ import {
 } from "./core/project.js";
 import { validateProject } from "./core/validator.js";
 import { calculateProject } from "./core/simulator.js";
+import { getComponentVisualState } from "./core/visual-state.js";
 import { createExerciseProject, evaluateExercise, getExercise, isComponentAllowed, listExercises, recordExerciseAttempt } from "./core/exercises.js";
 import { COMPONENT_CATEGORIES, getComponentDefinition, searchComponentDefinitions } from "./core/catalog.js";
 
@@ -196,11 +197,14 @@ function render() {
   verifyExerciseButton.disabled = !project.exerciseId;
   renderExerciseResult(project.exerciseProgress?.lastResult || null);
   emptyState.hidden = project.components.length > 0;
+  const visualCalculations = calculateProject(project);
 
   for (const component of project.components) {
     const definition = COMPONENT_LIBRARY[component.type];
+    const visualState = getComponentVisualState(component, visualCalculations);
     const element = document.createElement("article");
-    element.className = `component${component.id === selectedComponentId ? " selected" : ""}`;
+    element.className = `component component-${component.type} visual-${visualState.key}${component.id === selectedComponentId ? " selected" : ""}`;
+    element.dataset.visualState = visualState.key;
     element.dataset.componentId = component.id;
     element.style.left = `${component.x}px`;
     element.style.top = `${component.y}px`;
@@ -209,6 +213,7 @@ function render() {
         <span class="component-symbol">${definition.symbol}</span>
         <span>${escapeHtml(component.name)}</span>
       </div>
+      ${renderComponentVisual(component, visualState)}
       <div class="terminals"></div>
     `;
 
@@ -241,6 +246,30 @@ function render() {
 
   renderInspector();
   requestAnimationFrame(drawWires);
+}
+
+function renderComponentVisual(component, visualState) {
+  if (component.type !== "lamp") return "";
+
+  const label = visualState.energized ? "Ampoule allumée" : "Ampoule éteinte";
+  return `
+    <div class="component-visual lamp-visual" role="img" aria-label="${label}">
+      <svg class="lamp-svg" viewBox="0 0 64 76" aria-hidden="true">
+        <g class="lamp-rays">
+          <path d="M32 2v7" />
+          <path d="M10 11l5 5" />
+          <path d="M54 11l-5 5" />
+          <path d="M3 31h8" />
+          <path d="M61 31h-8" />
+        </g>
+        <path class="lamp-glass" d="M32 10c-12.2 0-22 9.4-22 21 0 8.2 4.7 13.6 10 18.4 2.3 2.1 3.8 5 4.2 8.1h15.6c.4-3.1 1.9-6 4.2-8.1 5.3-4.8 10-10.2 10-18.4 0-11.6-9.8-21-22-21Z" />
+        <path class="lamp-filament" d="M24 33l5 7 3-7 3 7 5-7M32 40v10" />
+        <path class="lamp-neck" d="M24 57h16" />
+        <path class="lamp-base" d="M24 60h16M25 65h14M28 70h8" />
+      </svg>
+      <span class="component-state-label">${visualState.label}</span>
+    </div>
+  `;
 }
 
 function handleTerminal(componentId, terminalId) {
