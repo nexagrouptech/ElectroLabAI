@@ -132,7 +132,7 @@ Implementation pushed with dedicated tests.
 - [x] Vercel Preview: READY.
 - [x] Owner approved final v0.5 for progression and external review.
 - [x] PR #5 merged to `main`.
-- [ ] Prepare and verify the short/public production URL for electrician review — production deployment is green, but the connected Vercel tool cannot currently access the `nexagrouptechs-projects` scope (403 authorization mismatch).
+- [x] Short/public production URL verified on 2026-10-06 from the Android/Ubuntu environment: `https://electro-lab-ai.vercel.app` returned HTTP 200 with the ElectroLab application HTML.
 - [ ] Structured remote-electrician review before proceeding into 3D/classroom work.
 
 
@@ -152,7 +152,7 @@ Do not start v0.6 yet. The next gate is:
 
 - Main is deployed successfully through the Git → Vercel integration.
 - The project is ready for a production/public URL.
-- The connected Vercel integration currently returns 403 for the `nexagrouptechs-projects` scope, so it cannot inspect or edit the project domain from this chat.
-- Do not send the long feature Preview URL to the electrician as the canonical v0.5 link.
-- Next safe action: restore Vercel connector authorization for this scope or use the already-authenticated Vercel CLI/dashboard to confirm the project's Production Domain and anonymous/public access.
-- After the short production URL is verified in a signed-out/private browser, update this file and send the electrician test plan.
+- The connected Vercel integration may still have scope-authorization limitations, but the production domain was independently verified from the Android/Ubuntu environment.
+- Canonical electrician-review URL: `https://electro-lab-ai.vercel.app`.
+- Verification evidence: HTTP 200, `text/html`, page title `ElectroLab AI — Validation & simulation`.
+- Next gate: send the structured v0.5 electrician test plan, then collect and triage the electrician report before starting v0.6.
