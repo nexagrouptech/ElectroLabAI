@@ -107,6 +107,32 @@ It should cover:
 - usefulness of the exercise workflow;
 - major missing electrical rules before 3D/classroom work.
 
+## Expanded component-library gate
+
+Before v0.6 starts, the owner-provided >85-component inventory must be reviewed with the electrician.
+
+Canonical inventory:
+
+```text
+COMPONENT_LIBRARY_EXPANSION.md
+```
+
+Planned top-level families:
+
+- CONDUCTEURS
+- PROTECTION
+- COMMANDE
+- RÉCEPTION
+- TERRE
+
+Components will progress through:
+
+```text
+CATALOG_ONLY → CONNECTABLE → VALIDATED
+```
+
+TERRE is the first safety-priority expansion. The 2D and future 3D layers must share the same component definitions and electrical source of truth.
+
 ## Later versions
 
 - **v0.6 — 3D Viewer**
