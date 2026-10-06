@@ -1,14 +1,14 @@
 {
   "schema": "nbridge.command.v1",
-  "id": "cmd-20261006-electrolab-local-state-1",
+  "id": "cmd-20261006-electrolab-sync-main-1",
   "repository": "nexagrouptech/ElectroLabAI",
   "device": "android-termux",
   "argv": [
     "bash",
     "-lc",
-    "git branch -vv && echo '---' && git rev-parse HEAD && git rev-parse --verify main 2>/dev/null || true && echo '---' && git status --short --branch"
+    "set -e; git fetch origin main; git switch main; git pull --ff-only origin main; echo '---'; git rev-parse HEAD; git status --short --branch"
   ],
   "cwd": ".",
   "environment": "ubuntu-proot",
-  "timeout_seconds": 60
+  "timeout_seconds": 120
 }
