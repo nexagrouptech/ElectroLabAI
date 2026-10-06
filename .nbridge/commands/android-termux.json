@@ -1,14 +1,14 @@
 {
   "schema": "nbridge.command.v1",
-  "id": "cmd-20261006-electrolab-prod-url-check-1",
+  "id": "cmd-20261006-electrolab-v051-part1-tests-1",
   "repository": "nexagrouptech/ElectroLabAI",
   "device": "android-termux",
   "argv": [
-    "python3",
-    "-c",
-    "import urllib.request; u='https://electro-lab-ai.vercel.app'; r=urllib.request.urlopen(u,timeout=20); b=r.read(300).decode('utf-8','replace'); print('URL='+r.geturl()); print('STATUS='+str(r.status)); print('CONTENT_TYPE='+str(r.headers.get('content-type'))); print('BODY_PREFIX='+b.replace('\\n',' ')[:220])"
+    "bash",
+    "-lc",
+    "set -e; git fetch origin feature/v0.5.1-smart-lamp-visual; git switch -C feature/v0.5.1-smart-lamp-visual --track origin/feature/v0.5.1-smart-lamp-visual; npm test; npm run check; npm run build; echo '---STATUS---'; git status --short --branch"
   ],
   "cwd": ".",
   "environment": "ubuntu-proot",
-  "timeout_seconds": 60
+  "timeout_seconds": 240
 }
