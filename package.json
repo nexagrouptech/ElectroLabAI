@@ -7,7 +7,7 @@
   "scripts": {
     "start": "node server.mjs",
     "test": "node --test",
-    "check": "node --check server.mjs && node --check core/project.js && node --check core/validator.js && node --check public/app.js",
+    "check": "node --check server.mjs && node --check core/project.js && node --check core/validator.js && node --check core/visual-state.js && node --check public/app.js",
     "build": "node scripts/build-static.mjs"
   },
   "dependencies": {
